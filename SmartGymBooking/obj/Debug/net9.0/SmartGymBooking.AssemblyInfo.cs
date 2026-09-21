@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SmartGymBooking")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2950883332dc64991c81178c8fdc2024dc55ee4b")]
 [assembly: System.Reflection.AssemblyProductAttribute("SmartGymBooking")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SmartGymBooking")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

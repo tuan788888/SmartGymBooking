@@ -6,4 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="4.0.104" />
+    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.101.4" />
+  </ItemGroup>
+
 </Project>

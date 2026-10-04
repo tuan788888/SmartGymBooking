@@ -6,7 +6,11 @@
 
 <div class="container mt-4">
 
-    <h2>Employee Database Test</h2>
+    <h2 class="mb-4">Employee Database Test</h2>
+
+    <div class="alert alert-info">
+        Kiểm tra tài khoản nhân viên và quan hệ Users - Employees.
+    </div>
 
     <table class="table table-bordered table-striped">
 
@@ -18,6 +22,7 @@
                 <th>Role</th>
                 <th>Điện thoại</th>
                 <th>Chức vụ</th>
+                <th>Trạng thái</th>
             </tr>
         </thead>
 
@@ -32,6 +37,7 @@
                 <td>@employee.User.Role</td>
                 <td>@employee.Phone</td>
                 <td>@employee.Position</td>
+                <td>@(employee.IsActive ? "Active" : "Inactive")</td>
             </tr>
         }
 

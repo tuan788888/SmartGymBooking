@@ -17,6 +17,7 @@ namespace SmartGymBooking.Controllers
         {
             var customers = await _context.Customers
                 .Include(c => c.User)
+                .OrderBy(c => c.CustomerId)
                 .ToListAsync();
 
             return View(customers);
@@ -26,6 +27,7 @@ namespace SmartGymBooking.Controllers
         {
             var employees = await _context.Employees
                 .Include(e => e.User)
+                .OrderBy(e => e.EmployeeId)
                 .ToListAsync();
 
             return View(employees);

@@ -1,0 +1,42 @@
+@model IEnumerable<SmartGymBooking.Models.Customer>
+
+@{
+    ViewData["Title"] = "Database Test";
+}
+
+<div class="container mt-4">
+
+    <h2>Customer Database Test</h2>
+
+    <table class="table table-bordered table-striped">
+
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Họ tên</th>
+                <th>Email</th>
+                <th>Điện thoại</th>
+                <th>Mục tiêu</th>
+                <th>Trình độ</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+        @foreach (var customer in Model)
+        {
+            <tr>
+                <td>@customer.CustomerId</td>
+                <td>@customer.FullName</td>
+                <td>@customer.User.Email</td>
+                <td>@customer.Phone</td>
+                <td>@customer.FitnessGoal</td>
+                <td>@customer.ExperienceLevel</td>
+            </tr>
+        }
+
+        </tbody>
+
+    </table>
+
+</div>

@@ -1,0 +1,198 @@
+@model SmartGymBooking.ViewModels.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Đăng ký";
+}
+
+<div class="container mt-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-md-6">
+
+            <div class="card shadow-sm">
+
+                <div class="card-body p-4">
+
+                    <h2 class="text-center mb-4">
+                        Đăng ký SmartGym
+                    </h2>
+
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="text-danger mb-3">
+                    </div>
+
+
+                    <form asp-action="Register"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+
+                        <div class="mb-3">
+
+                            <label asp-for="FullName"
+                                   class="form-label">
+                                Họ và tên
+                            </label>
+
+                            <input asp-for="FullName"
+                                   class="form-control" />
+
+                            <span asp-validation-for="FullName"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <div class="mb-3">
+
+                            <label asp-for="Email"
+                                   class="form-label">
+                                Email
+                            </label>
+
+                            <input asp-for="Email"
+                                   class="form-control" />
+
+                            <span asp-validation-for="Email"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <div class="mb-3">
+
+                            <label asp-for="Phone"
+                                   class="form-label">
+                                Số điện thoại
+                            </label>
+
+                            <input asp-for="Phone"
+                                   class="form-control" />
+
+                            <span asp-validation-for="Phone"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <div class="mb-3">
+
+                            <label asp-for="DateOfBirth"
+                                   class="form-label">
+                                Ngày sinh
+                            </label>
+
+                            <input asp-for="DateOfBirth"
+                                   class="form-control" />
+
+                        </div>
+
+
+                        <div class="mb-3">
+
+                            <label asp-for="Gender"
+                                   class="form-label">
+                                Giới tính
+                            </label>
+
+                            <select asp-for="Gender"
+                                    class="form-select">
+
+                                <option value="">
+                                    -- Chọn giới tính --
+                                </option>
+
+                                <option value="MALE">
+                                    Nam
+                                </option>
+
+                                <option value="FEMALE">
+                                    Nữ
+                                </option>
+
+                                <option value="OTHER">
+                                    Khác
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="mb-3">
+
+                            <label asp-for="Password"
+                                   class="form-label">
+                                Mật khẩu
+                            </label>
+
+                            <input asp-for="Password"
+                                   class="form-control" />
+
+                            <span asp-validation-for="Password"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <div class="mb-3">
+
+                            <label asp-for="ConfirmPassword"
+                                   class="form-label">
+                                Xác nhận mật khẩu
+                            </label>
+
+                            <input asp-for="ConfirmPassword"
+                                   class="form-control" />
+
+                            <span asp-validation-for="ConfirmPassword"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <button type="submit"
+                                class="btn btn-dark w-100">
+
+                            Đăng ký
+
+                        </button>
+
+                    </form>
+
+
+                    <div class="text-center mt-3">
+
+                        Đã có tài khoản?
+
+                        <a asp-controller="Auth"
+                           asp-action="Login">
+
+                            Đăng nhập
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}

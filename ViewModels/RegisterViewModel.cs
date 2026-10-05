@@ -10,6 +10,7 @@ namespace SmartGymBooking.ViewModels
 
         [Required(ErrorMessage = "Vui lòng nhập email.")]
         [EmailAddress(ErrorMessage = "Email không hợp lệ.")]
+        [StringLength(255)]
         public string Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Vui lòng nhập mật khẩu.")]
@@ -23,11 +24,13 @@ namespace SmartGymBooking.ViewModels
         public string ConfirmPassword { get; set; } = string.Empty;
 
         [Phone(ErrorMessage = "Số điện thoại không hợp lệ.")]
+        [StringLength(20)]
         public string? Phone { get; set; }
 
         [DataType(DataType.Date)]
         public DateOnly? DateOfBirth { get; set; }
 
+        [RegularExpression("^(MALE|FEMALE|OTHER)$", ErrorMessage = "Giới tính không hợp lệ.")]
         public string? Gender { get; set; }
     }
 }

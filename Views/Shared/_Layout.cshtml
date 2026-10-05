@@ -3,13 +3,10 @@
 
 <head>
     <meta charset="utf-8" />
-
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0" />
 
-    <title>
-        @ViewData["Title"] - SmartGymBooking
-    </title>
+    <title>@ViewData["Title"] - SmartGym</title>
 
     <link rel="stylesheet"
           href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
@@ -17,395 +14,223 @@
     <link rel="stylesheet"
           href="~/css/site.css"
           asp-append-version="true" />
-
 </head>
 
 <body>
 
-    <header>
-
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-
-            <div class="container">
-
-                <a class="navbar-brand"
-                   asp-controller="Home"
-                   asp-action="Index">
-
-                    SmartGym
-
-                </a>
-
-                <button class="navbar-toggler"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#mainNavbar"
-                        aria-controls="mainNavbar"
-                        aria-expanded="false"
-                        aria-label="Mở menu điều hướng">
-
-                    <span class="navbar-toggler-icon"></span>
-
-                </button>
-
-
-                <div class="collapse navbar-collapse"
-                     id="mainNavbar">
-<ul class="navbar-nav me-auto mb-2 mb-lg-0">
-
-
-@if (User.Identity?.IsAuthenticated == true
-                             && User.IsInRole("ADMIN"))
-                        {
-                            <li class="nav-item">
-
-                                <a class="nav-link"
-                                   asp-controller="AdminDashboard"
-                                   asp-action="Index">
-
-                                    Dashboard
-
-                                </a>
-
-                            </li>
-
-
-                            <li class="nav-item">
-
-                                <a class="nav-link"
-                                   asp-controller="CustomerManagement" asp-action="Index">
-
-                                    Khách hàng
-
-                                </a>
-
-                            </li>
-
-
-                            <li class="nav-item">
-
-                                <a class="nav-link"
-                                   href="#">
-
-                                    Nhân viên
-
-                                </a>
-
-                            </li>
-
-
-                            <li class="nav-item">
-
-                                <a class="nav-link"
-                                   href="#">
-
-                                    PT
-
-                                </a>
-
-                            </li>
-
-
-                            <li class="nav-item">
-
-                                <a class="nav-link"
-                                   href="#">
-
-                                    Gói tập
-
-                                </a>
-
-                            </li>
-
-
-                            <li class="nav-item">
-
-                                <a class="nav-link"
-                                   href="#">
-
-                                    Thanh toán
-
-                                </a>
-
-                            </li>
-
-
-                            <li class="nav-item">
-
-                                <a class="nav-link"
-                                   href="#">
-
-                                    Booking
-
-                                </a>
-
-                            </li>
-                        }
-
-
-else if (User.Identity?.IsAuthenticated == true
-                                 && User.IsInRole("EMPLOYEE"))
-                        {
-                            <li class="nav-item">
-
-                                <a class="nav-link"
-                                   asp-controller="EmployeeDashboard"
-                                   asp-action="Index">
-
-                                    Dashboard
-
-                                </a>
-
-                            </li>
-
-
-                            <li class="nav-item">
-
-                                <a class="nav-link"
-                                   asp-controller="CustomerManagement" asp-action="Index">
-
-                                    Khách hàng
-
-                                </a>
-
-                            </li>
-
-
-                            <li class="nav-item">
-
-                                <a class="nav-link"
-                                   href="#">
-
-                                    Booking
-
-                                </a>
-
-                            </li>
-
-
-                            <li class="nav-item">
-
-                                <a class="nav-link"
-                                   href="#">
-
-                                    Check-in
-
-                                </a>
-
-                            </li>
-
-
-                            <li class="nav-item">
-
-                                <a class="nav-link"
-                                   href="#">
-
-                                    Lịch PT
-
-                                </a>
-
-                            </li>
-
-
-                            <li class="nav-item">
-
-                                <a class="nav-link"
-                                   href="#">
-
-                                    Thanh toán
-
-                                </a>
-
-                            </li>
-                        }
-
-
-else
-                        {
-                            <li class="nav-item">
-
-                                <a class="nav-link"
-                                   asp-controller="Home"
-                                   asp-action="Index">
-
-                                    Trang chủ
-
-                                </a>
-
-                            </li>
-
-
-                            <li class="nav-item">
-
-                                <a class="nav-link"
-                                   href="#">
-
-                                    Gói tập
-
-                                </a>
-
-                            </li>
-
-
-                            <li class="nav-item">
-
-                                <a class="nav-link"
-                                   href="#">
-
-                                    Dịch vụ
-
-                                </a>
-
-                            </li>
-
-
-                            @if (User.Identity?.IsAuthenticated == true
-                                 && User.IsInRole("CUSTOMER"))
-                            {
-                                <li class="nav-item">
-
-                                    <a class="nav-link"
-                                       href="#">
-
-                                        Lịch của tôi
-
-                                    </a>
-
-                                </li>
-
-
-                                <li class="nav-item">
-
-                                    <a class="nav-link"
-                                       href="#">
-
-                                        Giáo án
-
-                                    </a>
-
-                                </li>
-
-
-                                <li class="nav-item">
-
-                                    <a class="nav-link"
-                                       href="#">
-
-                                        AI PT
-
-                                    </a>
-
-                                </li>
-                            }
-                        }
-
-                    </ul>
-<ul class="navbar-nav ms-auto">
-
-
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <li class="nav-item">
-
-                                <span class="nav-link text-light">
-
-                                    @User.Identity.Name
-
-                                </span>
-
-                            </li>
-
-
-                            <li class="nav-item">
-
-                                <form asp-controller="Auth"
-                                      asp-action="Logout"
-                                      method="post">
-
-                                    @Html.AntiForgeryToken()
-
-                                    <button type="submit"
-                                            class="btn btn-outline-light">
-
-                                        Đăng xuất
-
-                                    </button>
-
-                                </form>
-
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-
-                                <a class="nav-link"
-                                   asp-controller="Auth"
-                                   asp-action="Login">
-
-                                    Đăng nhập
-
-                                </a>
-
-                            </li>
-
-
-                            <li class="nav-item">
-
-                                <a class="nav-link"
-                                   asp-controller="Auth"
-                                   asp-action="Register">
-
-                                    Đăng ký
-
-                                </a>
-
-                            </li>
-                        }
-
-                    </ul>
-
-                </div>
-
-            </div>
-
-        </nav>
-
-    </header>
-
-
-    <main class="container py-4">
-
-        @RenderBody()
-
-    </main>
-
-
-    <footer class="border-top footer text-muted py-3">
+<header>
+    <nav class="navbar navbar-expand-lg smartgym-navbar">
 
         <div class="container">
 
-            &copy; @DateTime.Now.Year
-            - SmartGym Booking
+            <a class="smartgym-brand"
+               asp-controller="Home"
+               asp-action="Index">
+                SMART<span>GYM</span>
+            </a>
+
+            <button class="navbar-toggler navbar-dark"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#mainNavbar"
+                    aria-controls="mainNavbar"
+                    aria-expanded="false"
+                    aria-label="Mở menu điều hướng">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse"
+                 id="mainNavbar">
+
+                <ul class="navbar-nav me-auto">
+
+                    @if (User.IsInRole("ADMIN"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-controller="AdminDashboard"
+                               asp-action="Index">
+                                Dashboard
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-controller="CustomerManagement"
+                               asp-action="Index">
+                                Khách hàng
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-controller="EmployeeManagement"
+                               asp-action="Index">
+                                Nhân viên
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                PT
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                Gói tập
+                            </a>
+                        </li>
+                    }
+
+                    else if (User.IsInRole("EMPLOYEE"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-controller="EmployeeDashboard"
+                               asp-action="Index">
+                                Dashboard
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-controller="CustomerManagement"
+                               asp-action="Index">
+                                Khách hàng
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                Booking
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                Check-in
+                            </a>
+                        </li>
+                    }
+
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-controller="Home"
+                               asp-action="Index">
+                                Trang chủ
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                Gói tập
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                Dịch vụ
+                            </a>
+                        </li>
+
+                        @if (User.IsInRole("CUSTOMER"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">
+                                    Lịch của tôi
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">
+                                    AI PT
+                                </a>
+                            </li>
+                        }
+                    }
+
+                </ul>
+
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <li class="nav-item me-lg-3">
+                            <span class="nav-link">
+                                @User.Identity.Name
+                            </span>
+                        </li>
+
+                        <li class="nav-item">
+                            <form asp-controller="Auth"
+                                  asp-action="Logout"
+                                  method="post">
+
+                                @Html.AntiForgeryToken()
+
+                                <button class="btn btn-outline-light">
+                                    Đăng xuất
+                                </button>
+
+                            </form>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-controller="Auth"
+                               asp-action="Login">
+                                Đăng nhập
+                            </a>
+                        </li>
+
+                        <li class="nav-item ms-lg-2">
+                            <a class="btn btn-success"
+                               asp-controller="Auth"
+                               asp-action="Register">
+                                Đăng ký
+                            </a>
+                        </li>
+                    }
+
+                </ul>
+
+            </div>
 
         </div>
 
-    </footer>
+    </nav>
+</header>
 
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-
-    <script src="~/js/site.js"
-            asp-append-version="true">
-    </script>
+<main class="container page-shell">
+    @RenderBody()
+</main>
 
 
-    @await RenderSectionAsync(
-        "Scripts",
-        required: false
-    )
+<footer class="smart-footer py-4">
+    <div class="container d-flex justify-content-between">
+        <span>© @DateTime.Now.Year SmartGym Booking</span>
+        <span>Graduation Project</span>
+    </div>
+</footer>
+
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="~/js/site.js"
+        asp-append-version="true"></script>
+
+@await RenderSectionAsync(
+    "Scripts",
+    required: false
+)
 
 </body>
 

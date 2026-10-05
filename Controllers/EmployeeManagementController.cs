@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -293,5 +294,74 @@ namespace SmartGymBooking.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-    }
+        [HttpGet]
+        public async Task<IActionResult> Delete(long id)
+        {
+            var employee = await _context.Employees
+                .Include(e => e.User)
+                .FirstOrDefaultAsync(e => e.EmployeeId == id);
+
+            if (employee == null)
+            {
+                return NotFound();
+            }
+
+            return View(employee);
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(long id)
+        {
+            var employee = await _context.Employees
+                .Include(e => e.User)
+                .FirstOrDefaultAsync(e => e.EmployeeId == id);
+
+            if (employee == null)
+            {
+                return NotFound();
+            }
+
+            if (employee.User.Role != "EMPLOYEE" ||
+                User.FindFirstValue(ClaimTypes.NameIdentifier) == employee.UserId.ToString() ||
+                await _context.Customers.AnyAsync(c => c.UserId == employee.UserId))
+            {
+                TempData["ErrorMessage"] = "Không thể xóa tài khoản này vì không phải tài khoản nhân viên độc lập.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            await using var transaction =
+                await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                var user = employee.User;
+
+                _context.Employees.Remove(employee);
+
+                await _context.SaveChangesAsync();
+
+                _context.Users.Remove(user);
+
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                TempData["SuccessMessage"] =
+                    "Đã xóa nhân viên.";
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateException)
+            {
+                await transaction.RollbackAsync();
+
+                TempData["ErrorMessage"] =
+                    "Không thể xóa nhân viên.";
+
+                return RedirectToAction(nameof(Index));
+            }
+        }
+            }
 }

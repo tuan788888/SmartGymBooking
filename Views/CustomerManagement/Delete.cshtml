@@ -1,0 +1,67 @@
+@model SmartGymBooking.Models.Customer
+
+@{
+    ViewData["Title"] = "Xóa khách hàng";
+}
+
+<div class="row justify-content-center">
+
+    <div class="col-lg-6">
+
+        <div class="smart-card">
+
+            <div class="card-body">
+
+                <h3 class="mb-3">
+                    Xóa khách hàng
+                </h3>
+
+                <div class="alert alert-danger">
+                    Hành động này sẽ xóa hồ sơ khách hàng
+                    và tài khoản đăng nhập tương ứng.
+                </div>
+
+                <p>
+                    <strong>Họ tên:</strong>
+                    @Model.FullName
+                </p>
+
+                <p>
+                    <strong>Email:</strong>
+                    @Model.User.Email
+                </p>
+
+                <p>
+                    <strong>Điện thoại:</strong>
+                    @Model.Phone
+                </p>
+
+                <form asp-action="DeleteConfirmed"
+                      asp-route-id="@Model.CustomerId"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <div class="d-flex gap-2">
+
+                        <a asp-action="Index"
+                           class="btn btn-outline-secondary">
+                            Hủy
+                        </a>
+
+                        <button type="submit"
+                                class="btn btn-danger">
+                            Xác nhận xóa
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

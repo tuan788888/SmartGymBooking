@@ -26,6 +26,11 @@
     }
 
 
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger" role="alert">@TempData["ErrorMessage"]</div>
+    }
+
     <form method="get"
           class="row g-2 mb-4">
 
@@ -140,6 +145,7 @@
 
                             @if (User.IsInRole("ADMIN"))
                             {
+                                <a asp-action="Delete" asp-route-id="@customer.CustomerId" class="btn btn-sm btn-outline-danger">Xóa</a>
                                 <a asp-action="Edit"
                                    asp-route-id="@customer.CustomerId"
                                    class="btn btn-sm btn-outline-warning">

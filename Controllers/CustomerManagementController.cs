@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SmartGymBooking.Data;
@@ -226,5 +227,119 @@ namespace SmartGymBooking.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-    }
+        [Authorize(Roles = "ADMIN")]
+        [HttpGet]
+        public async Task<IActionResult> Delete(long id)
+        {
+            var customer = await _context.Customers
+                .Include(c => c.User)
+                .FirstOrDefaultAsync(c => c.CustomerId == id);
+
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            return View(customer);
+        }
+
+
+        // =====================================
+        // DELETE POST
+        // CHỈ ADMIN
+        // =====================================
+
+        [Authorize(Roles = "ADMIN")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(long id)
+        {
+            var customer = await _context.Customers
+                .Include(c => c.User)
+                .FirstOrDefaultAsync(c => c.CustomerId == id);
+
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            if (customer.User.Role != "CUSTOMER" ||
+                User.FindFirstValue(ClaimTypes.NameIdentifier) == customer.UserId.ToString() ||
+                await _context.Employees.AnyAsync(e => e.UserId == customer.UserId))
+            {
+                TempData["ErrorMessage"] = "Không thể xóa tài khoản này vì không phải tài khoản khách hàng độc lập.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Kiểm tra dữ liệu nghiệp vụ liên quan
+            var hasPayment = await _context.Payments
+                .AnyAsync(x => x.CustomerId == id);
+
+            var hasMembership = await _context.Memberships
+                .AnyAsync(x => x.CustomerId == id);
+
+            var hasBooking = await _context.Bookings
+                .AnyAsync(x => x.CustomerId == id);
+
+            var hasCheckIn = await _context.CheckIns
+                .AnyAsync(x => x.CustomerId == id);
+
+            var hasPTSchedule = await _context.Ptschedules
+                .AnyAsync(x => x.CustomerId == id);
+
+            var hasWorkoutPlan = await _context.WorkoutPlans
+                .AnyAsync(x => x.CustomerId == id);
+
+            var hasAIConversation = await _context.Aiconversations
+                .AnyAsync(x => x.CustomerId == id);
+
+            if (
+                hasPayment ||
+                hasMembership ||
+                hasBooking ||
+                hasCheckIn ||
+                hasPTSchedule ||
+                hasWorkoutPlan ||
+                hasAIConversation
+            )
+            {
+                TempData["ErrorMessage"] =
+                    "Không thể xóa khách hàng vì đã có dữ liệu giao dịch, lịch tập hoặc lịch sử hệ thống. Hãy khóa tài khoản thay vì xóa.";
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            await using var transaction =
+                await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                var user = customer.User;
+
+                _context.Customers.Remove(customer);
+
+                await _context.SaveChangesAsync();
+
+                _context.Users.Remove(user);
+
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                TempData["SuccessMessage"] =
+                    "Đã xóa khách hàng thành công.";
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateException)
+            {
+                await transaction.RollbackAsync();
+
+                TempData["ErrorMessage"] =
+                    "Không thể xóa khách hàng.";
+
+                return RedirectToAction(nameof(Index));
+            }
+        }
+            }
 }

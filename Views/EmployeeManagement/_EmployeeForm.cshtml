@@ -1,0 +1,29 @@
+@model SmartGymBooking.ViewModels.EmployeeViewModel
+<input asp-for="EmployeeId" type="hidden" />
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+<div class="row g-3">
+    <div class="col-md-6"><label asp-for="FullName" class="form-label">Họ tên</label><input asp-for="FullName" class="form-control" autocomplete="name" /><span asp-validation-for="FullName" class="text-danger"></span></div>
+    <div class="col-md-6"><label asp-for="Email" class="form-label">Email</label><input asp-for="Email" class="form-control" autocomplete="email" /><span asp-validation-for="Email" class="text-danger"></span></div>
+    <div class="col-md-6"><label asp-for="Phone" class="form-label">Điện thoại</label><input asp-for="Phone" class="form-control" autocomplete="tel" /><span asp-validation-for="Phone" class="text-danger"></span></div>
+    <div class="col-md-6"><label asp-for="Position" class="form-label">Chức vụ</label><input asp-for="Position" class="form-control" /><span asp-validation-for="Position" class="text-danger"></span></div>
+    <div class="col-md-6"><label asp-for="DateOfBirth" class="form-label">Ngày sinh</label><input asp-for="DateOfBirth" class="form-control" /><span asp-validation-for="DateOfBirth" class="text-danger"></span></div>
+    <div class="col-md-6"><label asp-for="Gender" class="form-label">Giới tính</label><select asp-for="Gender" class="form-select"><option value="">-- Chọn --</option><option value="MALE">Nam</option><option value="FEMALE">Nữ</option><option value="OTHER">Khác</option></select><span asp-validation-for="Gender" class="text-danger"></span></div>
+    <div class="col-12"><label asp-for="Avatar" class="form-label">Đường dẫn avatar</label><input asp-for="Avatar" class="form-control" /><span asp-validation-for="Avatar" class="text-danger"></span></div>
+    <div class="col-12">
+        <label asp-for="Password" class="form-label">@(Model.EmployeeId == 0 ? "Mật khẩu" : "Mật khẩu mới")</label>
+        @if (Model.EmployeeId == 0)
+        {
+            <input asp-for="Password" type="password" value="" class="form-control" autocomplete="new-password" required aria-describedby="passwordHelp" />
+        }
+        else
+        {
+            <input asp-for="Password" type="password" value="" class="form-control" autocomplete="new-password" aria-describedby="passwordHelp" />
+        }
+        <div id="passwordHelp" class="form-text">@(Model.EmployeeId == 0 ? "Nhập ít nhất 6 ký tự." : "Để trống nếu giữ nguyên mật khẩu. Mật khẩu mới cần ít nhất 6 ký tự.")</div>
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+    <div class="col-12"><div class="form-check"><input asp-for="IsActive" class="form-check-input" /><label asp-for="IsActive" class="form-check-label">Tài khoản hoạt động</label></div></div>
+</div>
+<div class="d-flex justify-content-end gap-2 mt-4">
+    <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a><button type="submit" class="btn btn-smart-primary">Lưu thông tin</button>
+</div>

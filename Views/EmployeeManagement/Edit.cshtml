@@ -1,0 +1,9 @@
+@model SmartGymBooking.ViewModels.EmployeeViewModel
+@{ ViewData["Title"] = "Sửa nhân viên"; }
+<div class="row justify-content-center"><div class="col-lg-8">
+    <h1 class="page-title mb-4">Sửa thông tin nhân viên</h1>
+    <div class="card smart-card"><div class="card-body">
+        <form asp-action="Edit" method="post"><partial name="_EmployeeForm" model="Model" /></form>
+    </div></div>
+</div></div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

@@ -1,0 +1,42 @@
+@model IReadOnlyCollection<SmartGymBooking.Models.Employee>
+@{
+    ViewData["Title"] = "Quản lý nhân viên";
+}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div><h1 class="page-title">Quản lý nhân viên</h1><p class="page-subtitle mb-0">Thông tin và tài khoản nhân viên SmartGym</p></div>
+    <a asp-action="Create" class="btn btn-smart-success">Thêm nhân viên</a>
+</div>
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success" role="status">@TempData["SuccessMessage"]</div>
+}
+<form asp-action="Index" method="get" class="row g-2 mb-4">
+    <div class="col-md-6"><label for="search" class="visually-hidden">Tìm nhân viên</label><input id="search" name="search" value="@ViewBag.Search" class="form-control" placeholder="Tìm theo tên, email hoặc số điện thoại..." /></div>
+    <div class="col-auto"><button class="btn btn-smart-primary" type="submit">Tìm kiếm</button></div>
+    <div class="col-auto"><a asp-action="Index" class="btn btn-outline-secondary">Làm mới</a></div>
+</form>
+<div class="table-shell table-responsive">
+    <table class="table table-hover align-middle">
+        <thead><tr><th scope="col">ID</th><th scope="col">Họ tên</th><th scope="col">Email</th><th scope="col">Điện thoại</th><th scope="col">Chức vụ</th><th scope="col">Trạng thái</th><th scope="col">Thao tác</th></tr></thead>
+        <tbody>
+        @if (Model.Count == 0)
+        {
+            <tr><td colspan="7" class="text-center text-muted py-4">Không tìm thấy nhân viên.</td></tr>
+        }
+        @foreach (var employee in Model)
+        {
+            <tr>
+                <td>@employee.EmployeeId</td><td>@employee.FullName</td><td>@employee.User.Email</td><td>@employee.Phone</td><td>@employee.Position</td>
+                <td><span class="badge @(employee.User.IsActive ? "badge-soft-success" : "badge-soft-danger")">@(employee.User.IsActive ? "Hoạt động" : "Đã khóa")</span></td>
+                <td><div class="d-flex gap-2 flex-wrap">
+                    <a asp-action="Details" asp-route-id="@employee.EmployeeId" class="btn btn-sm btn-outline-primary">Chi tiết</a>
+                    <a asp-action="Edit" asp-route-id="@employee.EmployeeId" class="btn btn-sm btn-outline-secondary">Sửa</a>
+                    <form asp-action="ToggleStatus" asp-route-id="@employee.EmployeeId" method="post">
+                        <button type="submit" class="btn btn-sm @(employee.User.IsActive ? "btn-outline-danger" : "btn-outline-success")">@(employee.User.IsActive ? "Khóa" : "Mở khóa")</button>
+                    </form>
+                </div></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

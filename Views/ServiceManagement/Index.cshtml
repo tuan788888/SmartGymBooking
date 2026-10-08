@@ -1,0 +1,140 @@
+@model IEnumerable<SmartGymBooking.Models.Service>
+
+@{
+    ViewData["Title"] = "Quản lý dịch vụ";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+        <h2 class="page-title">
+            Dịch vụ
+        </h2>
+
+        <p class="page-subtitle">
+            Quản lý các loại hình tập luyện tại SmartGym
+        </p>
+    </div>
+
+    <a asp-action="Create"
+       class="btn btn-smart-success">
+        + Thêm dịch vụ
+    </a>
+
+</div>
+
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+
+<div class="table-shell">
+
+    <div class="table-responsive">
+
+        <table class="table align-middle">
+
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Dịch vụ</th>
+                    <th>Mô tả</th>
+                    <th>Trạng thái</th>
+                    <th style="width:280px;">
+                        Thao tác
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @foreach (var service in Model)
+                {
+                    <tr>
+
+                        <td>
+                            @service.ServiceId
+                        </td>
+
+                        <td>
+                            <strong>
+                                @service.Name
+                            </strong>
+                        </td>
+
+                        <td>
+                            @service.Description
+                        </td>
+
+                        <td>
+
+                            @if (service.IsActive)
+                            {
+                                <span class="badge bg-success">
+                                    Active
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    Inactive
+                                </span>
+                            }
+
+                        </td>
+
+                        <td>
+
+                            <a asp-action="Edit"
+                               asp-route-id="@service.ServiceId"
+                               class="btn btn-sm btn-outline-warning">
+                                Sửa
+                            </a>
+
+                            <form asp-action="ToggleStatus"
+                                  asp-route-id="@service.ServiceId"
+                                  method="post"
+                                  class="d-inline">
+
+                                @Html.AntiForgeryToken()
+
+                                <button type="submit"
+                                        class="btn btn-sm btn-outline-secondary">
+
+                                    @(service.IsActive
+                                        ? "Inactive"
+                                        : "Active")
+
+                                </button>
+
+                            </form>
+
+                            <a asp-action="Delete"
+                               asp-route-id="@service.ServiceId"
+                               class="btn btn-sm btn-outline-danger">
+                                Xóa
+                            </a>
+
+                        </td>
+
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>

@@ -1,0 +1,53 @@
+@model SmartGymBooking.Models.Service
+
+@{
+    ViewData["Title"] = "Xóa dịch vụ";
+}
+
+<div class="row justify-content-center">
+
+    <div class="col-lg-6">
+
+        <div class="smart-card">
+
+            <div class="card-body">
+
+                <h3>Xóa dịch vụ</h3>
+
+                <div class="alert alert-danger mt-3">
+                    Bạn có chắc chắn muốn xóa dịch vụ này?
+                </div>
+
+                <h5>
+                    @Model.Name
+                </h5>
+
+                <p>
+                    @Model.Description
+                </p>
+
+                <form asp-action="DeleteConfirmed"
+                      asp-route-id="@Model.ServiceId"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <a asp-action="Index"
+                       class="btn btn-outline-secondary">
+                        Hủy
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-danger">
+                        Xác nhận xóa
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

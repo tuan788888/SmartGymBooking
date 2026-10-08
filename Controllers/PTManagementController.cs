@@ -94,6 +94,7 @@ namespace SmartGymBooking.Controllers
         public async Task<IActionResult> Create(PTViewModel model)
         {
             Normalize(model);
+            await ValidateAvatarAsync(model.AvatarFile);
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -169,7 +170,16 @@ namespace SmartGymBooking.Controllers
 
             _context.Pts.Add(pt);
 
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                DeleteAvatar(avatarPath);
+                ModelState.AddModelError(string.Empty, "Không thể thêm PT. Email hoặc điện thoại có thể đã được sử dụng.");
+                return View(model);
+            }
 
             TempData["SuccessMessage"] =
                 "Thêm PT thành công.";
@@ -219,6 +229,7 @@ namespace SmartGymBooking.Controllers
         public async Task<IActionResult> Edit(PTViewModel model)
         {
             Normalize(model);
+            await ValidateAvatarAsync(model.AvatarFile);
             var pt = await _context.Pts
                 .FirstOrDefaultAsync(p => p.Ptid == model.PTId);
 
@@ -299,15 +310,24 @@ namespace SmartGymBooking.Controllers
 
             pt.UpdatedAt = DateTime.Now;
 
+            var oldAvatar = pt.Avatar;
             if (model.AvatarFile != null)
             {
-                DeleteAvatar(pt.Avatar);
-
-                pt.Avatar =
-                    await SaveAvatarAsync(model.AvatarFile);
+                pt.Avatar = await SaveAvatarAsync(model.AvatarFile);
             }
 
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                if (pt.Avatar != oldAvatar) DeleteAvatar(pt.Avatar);
+                ModelState.AddModelError(string.Empty, "Không thể cập nhật PT. Vui lòng thử lại.");
+                return View(model);
+            }
+
+            if (pt.Avatar != oldAvatar) DeleteAvatar(oldAvatar);
 
             TempData["SuccessMessage"] =
                 "Cập nhật PT thành công.";
@@ -400,7 +420,15 @@ namespace SmartGymBooking.Controllers
 
             _context.Pts.Remove(pt);
 
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                TempData["ErrorMessage"] = "Không thể xóa PT vì có dữ liệu liên quan. Hãy chuyển PT sang Inactive.";
+                return RedirectToAction(nameof(Index));
+            }
 
             DeleteAvatar(avatar);
 
@@ -485,29 +513,49 @@ namespace SmartGymBooking.Controllers
         // DELETE AVATAR
         // ==========================================
 
-        private void DeleteAvatar(string? avatarPath)
+        private async Task ValidateAvatarAsync(IFormFile? file)
         {
-            if (string.IsNullOrWhiteSpace(avatarPath))
+            if (file == null) return;
+            const int maxSize = 5 * 1024 * 1024;
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (file.Length <= 0 || file.Length > maxSize)
             {
+                ModelState.AddModelError("AvatarFile", "Ảnh phải có dữ liệu và không được lớn hơn 5MB.");
                 return;
             }
-
-            var relativePath =
-                avatarPath.TrimStart('/')
-                    .Replace(
-                        '/',
-                        Path.DirectorySeparatorChar
-                    );
-
-            var physicalPath =
-                Path.Combine(
-                    _environment.WebRootPath,
-                    relativePath
-                );
-
-            if (System.IO.File.Exists(physicalPath))
+            await using var stream = file.OpenReadStream();
+            var header = new byte[12];
+            var read = await stream.ReadAtLeastAsync(header, 12, throwOnEndOfStream: false);
+            var valid = extension switch
             {
-                System.IO.File.Delete(physicalPath);
+                ".jpg" or ".jpeg" => read >= 3 && header[0] == 0xff && header[1] == 0xd8 && header[2] == 0xff,
+                ".png" => read >= 8 && header.AsSpan(0, 8).SequenceEqual(new byte[] {137, 80, 78, 71, 13, 10, 26, 10}),
+                ".webp" => read >= 12 && System.Text.Encoding.ASCII.GetString(header, 0, 4) == "RIFF" && System.Text.Encoding.ASCII.GetString(header, 8, 4) == "WEBP",
+                _ => false
+            };
+            if (!valid) ModelState.AddModelError("AvatarFile", "Ảnh không hợp lệ. Chỉ chấp nhận JPG, PNG hoặc WEBP.");
+        }
+
+        private void DeleteAvatar(string? avatarPath)
+        {
+            const string prefix = "/images/pts/";
+            if (avatarPath == null || !avatarPath.StartsWith(prefix, StringComparison.Ordinal)) return;
+            var name = avatarPath[prefix.Length..];
+            var extension = Path.GetExtension(name).ToLowerInvariant();
+            if (name != Path.GetFileName(name) || name.Contains('\\') ||
+                !Guid.TryParse(Path.GetFileNameWithoutExtension(name), out _) ||
+                !new[] { ".jpg", ".jpeg", ".png", ".webp" }.Contains(extension)) return;
+            var folder = Path.GetFullPath(Path.Combine(_environment.WebRootPath, "images", "pts"));
+            var path = Path.GetFullPath(Path.Combine(folder, name));
+            if (!path.StartsWith(folder + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)) return;
+            try
+            {
+                if (System.IO.File.Exists(path)) System.IO.File.Delete(path);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                HttpContext.RequestServices.GetRequiredService<ILogger<PTManagementController>>()
+                    .LogWarning(ex, "Unable to remove PT avatar {AvatarPath}", avatarPath);
             }
         }
     }

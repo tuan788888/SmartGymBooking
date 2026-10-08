@@ -44,6 +44,9 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Serve uploaded images that are created after the application starts.
+app.UseStaticFiles();
+
 app.UseRouting();
 
 // PHẢI đặt trước UseAuthorization

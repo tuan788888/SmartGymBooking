@@ -24,3 +24,7 @@ venv/
 
 Thumbs.db
 .DS_Store
+
+# PT profile images uploaded at runtime
+wwwroot/images/pts/*
+!wwwroot/images/pts/.gitkeep

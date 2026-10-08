@@ -46,7 +46,8 @@
 
                     @if (User.IsInRole("ADMIN"))
                     {
-                        <li class="nav-item"><a class="nav-link" asp-controller="PaymentManagement" asp-action="Index">Thanh toán</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="ServiceManagement" asp-action="Index">Dịch vụ</a></li><li class="nav-item"><a class="nav-link" asp-controller="BookingManagement" asp-action="Index">Booking</a></li>
+<li class="nav-item"><a class="nav-link" asp-controller="PaymentManagement" asp-action="Index">Thanh toán</a></li>
 <li class="nav-item">
                             <a class="nav-link"
                                asp-controller="AdminDashboard"
@@ -105,7 +106,7 @@
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
+                            <a class="nav-link" asp-controller="BookingManagement" asp-action="Index">
                                 Booking
                             </a>
                         </li>
@@ -143,7 +144,7 @@
                         {
                             <li class="nav-item"><a class="nav-link" asp-controller="Payment" asp-action="History">Thanh toán của tôi</a></li><li class="nav-item"><a class="nav-link" asp-controller="Membership" asp-action="Index">Membership</a></li>
 <li class="nav-item">
-                                <a class="nav-link" href="#">
+                                <a class="nav-link" asp-controller="Booking" asp-action="Index">
                                     Lịch của tôi
                                 </a>
                             </li>

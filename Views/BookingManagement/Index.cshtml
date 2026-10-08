@@ -1,0 +1,213 @@
+@model IEnumerable<SmartGymBooking.Models.Booking>
+
+@{
+    ViewData["Title"] = "Quản lý Booking";
+}
+
+<div class="mb-4">
+
+    <h2 class="page-title">
+        Booking
+    </h2>
+
+    <p class="page-subtitle">
+        Quản lý lịch đặt dịch vụ của khách hàng
+    </p>
+
+</div>
+
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+
+<div class="smart-card mb-4">
+
+    <div class="card-body">
+
+        <form method="get"
+              class="row g-2">
+
+            <div class="col-md-4">
+
+                <select name="status"
+                        class="form-select">
+
+                    <option value="">
+                        Tất cả
+                    </option>
+
+                    <option value="PENDING" selected="@(ViewBag.Status == "PENDING")">
+                        PENDING
+                    </option>
+
+                    <option value="CONFIRMED" selected="@(ViewBag.Status == "CONFIRMED")">
+                        CONFIRMED
+                    </option>
+
+                    <option value="COMPLETED" selected="@(ViewBag.Status == "COMPLETED")">
+                        COMPLETED
+                    </option>
+
+                    <option value="CANCELLED" selected="@(ViewBag.Status == "CANCELLED")">
+                        CANCELLED
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="col-auto">
+
+                <button type="submit"
+                        class="btn btn-smart-primary">
+
+                    Lọc
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<div class="table-shell">
+
+    <div class="table-responsive">
+
+        <table class="table align-middle">
+
+            <thead>
+
+                <tr>
+                    <th>Khách hàng</th>
+                    <th>Dịch vụ</th>
+                    <th>Bắt đầu</th>
+                    <th>Kết thúc</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                @foreach (var booking in Model)
+                {
+                    <tr>
+
+                        <td>
+
+                            @booking.Customer.FullName
+
+                            <div class="small text-muted">
+                                @booking.Customer.User.Email
+                            </div>
+
+                        </td>
+
+                        <td>
+                            @booking.Service.Name
+                        </td>
+
+                        <td>
+                            @booking.StartTime.ToString(
+                                "dd/MM/yyyy HH:mm"
+                            )
+                        </td>
+
+                        <td>
+                            @booking.EndTime.ToString(
+                                "dd/MM/yyyy HH:mm"
+                            )
+                        </td>
+
+                        <td>
+                            @booking.Status
+                        </td>
+
+
+                        <td>
+
+                            <div class="d-flex gap-2">
+
+                                @if (booking.Status == "PENDING" && booking.StartTime > DateTime.Now)
+                                {
+                                    <form asp-action="Confirm"
+                                          asp-route-id="@booking.BookingId"
+                                          method="post">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <button class="btn btn-sm btn-success">
+                                            Xác nhận
+                                        </button>
+
+                                    </form>
+                                }
+
+
+                                @if (booking.Status == "CONFIRMED" && booking.EndTime <= DateTime.Now)
+                                {
+                                    <form asp-action="Complete"
+                                          asp-route-id="@booking.BookingId"
+                                          method="post">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <button class="btn btn-sm btn-primary">
+                                            Hoàn thành
+                                        </button>
+
+                                    </form>
+                                }
+
+
+                                @if (
+                                    booking.Status != "COMPLETED" &&
+                                    booking.Status != "CANCELLED")
+                                {
+                                    <form asp-action="Cancel"
+                                          asp-route-id="@booking.BookingId"
+                                          method="post">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <button class="btn btn-sm btn-outline-danger">
+                                            Hủy
+                                        </button>
+
+                                    </form>
+                                }
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>

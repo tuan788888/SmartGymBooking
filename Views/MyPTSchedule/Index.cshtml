@@ -1,0 +1,131 @@
+@model IEnumerable<SmartGymBooking.Models.Ptschedule>
+
+@{
+    ViewData["Title"] = "Lịch PT của tôi";
+}
+
+<div class="mb-4">
+
+    <h2 class="page-title">
+        Lịch PT của tôi
+    </h2>
+
+    <p class="page-subtitle">
+        Theo dõi các buổi tập với Personal Trainer
+    </p>
+
+</div>
+
+
+@if (!Model.Any())
+{
+    <div class="smart-card">
+
+        <div class="card-body text-center py-5">
+
+            <h4>
+                Bạn chưa có lịch PT
+            </h4>
+
+            <p class="text-muted">
+                Lịch PT sẽ được nhân viên SmartGym sắp xếp
+                nếu gói của bạn bao gồm Personal Trainer.
+            </p>
+
+        </div>
+
+    </div>
+}
+
+
+<div class="row g-4">
+
+    @foreach (var schedule in Model)
+    {
+        <div class="col-lg-6">
+
+            <div class="smart-card h-100">
+
+                <div class="card-body p-4">
+
+                    <div class="d-flex gap-3">
+
+                        @if (!string.IsNullOrWhiteSpace(
+                            schedule.Pt.Avatar))
+                        {
+                            <img src="@schedule.Pt.Avatar"
+                                 class="avatar-circle"
+                                 style="width:70px;height:70px;"
+                                 alt="@schedule.Pt.FullName" />
+                        }
+
+
+                        <div>
+
+                            <h5>
+                                @schedule.Pt.FullName
+                            </h5>
+
+                            <div class="text-muted">
+                                @schedule.Pt.Specialization
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <hr />
+
+
+                    <p>
+
+                        <strong>Bắt đầu:</strong><br />
+
+                        @schedule.StartTime.ToString(
+                            "dd/MM/yyyy HH:mm"
+                        )
+
+                    </p>
+
+
+                    <p>
+
+                        <strong>Kết thúc:</strong><br />
+
+                        @schedule.EndTime.ToString(
+                            "dd/MM/yyyy HH:mm"
+                        )
+
+                    </p>
+
+
+                    <p>
+
+                        <strong>Trạng thái:</strong>
+
+                        @schedule.Status
+
+                    </p>
+
+
+                    @if (!string.IsNullOrWhiteSpace(
+                        schedule.Note))
+                    {
+                        <p>
+
+                            <strong>Ghi chú:</strong><br />
+
+                            @schedule.Note
+
+                        </p>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+
+</div>

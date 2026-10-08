@@ -46,7 +46,8 @@
 
                     @if (User.IsInRole("ADMIN"))
                     {
-                        <li class="nav-item">
+                        <li class="nav-item"><a class="nav-link" asp-controller="PaymentManagement" asp-action="Index">Thanh toán</a></li>
+<li class="nav-item">
                             <a class="nav-link"
                                asp-controller="AdminDashboard"
                                asp-action="Index">
@@ -85,7 +86,8 @@
 
                     else if (User.IsInRole("EMPLOYEE"))
                     {
-                        <li class="nav-item"><a class="nav-link" asp-controller="Package" asp-action="Index">Gói tập</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="PaymentManagement" asp-action="Index">Thanh toán</a></li>
+<li class="nav-item"><a class="nav-link" asp-controller="Package" asp-action="Index">Gói tập</a></li>
 <li class="nav-item">
                             <a class="nav-link"
                                asp-controller="EmployeeDashboard"
@@ -139,7 +141,8 @@
 
                         @if (User.IsInRole("CUSTOMER"))
                         {
-                            <li class="nav-item">
+                            <li class="nav-item"><a class="nav-link" asp-controller="Payment" asp-action="History">Thanh toán của tôi</a></li><li class="nav-item"><a class="nav-link" asp-controller="Membership" asp-action="Index">Membership</a></li>
+<li class="nav-item">
                                 <a class="nav-link" href="#">
                                     Lịch của tôi
                                 </a>

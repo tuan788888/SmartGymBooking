@@ -1,0 +1,146 @@
+@model SmartGymBooking.Models.Payment
+
+@{
+    ViewData["Title"] = "Chi tiết thanh toán";
+}
+
+<div class="row justify-content-center">
+
+    <div class="col-xl-8">
+
+        <div class="smart-card">
+
+            <div class="card-header">
+
+                <h4>
+                    Chi tiết giao dịch
+                </h4>
+
+            </div>
+
+
+            <div class="card-body">
+
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success">
+                        @TempData["SuccessMessage"]
+                    </div>
+                }
+
+
+                <div class="row">
+
+                    <div class="col-md-6">
+
+                        <p>
+                            <strong>Mã:</strong><br />
+                            @Model.PaymentCode
+                        </p>
+
+                        <p>
+                            <strong>Khách hàng:</strong><br />
+                            @Model.Customer.FullName
+                        </p>
+
+                        <p>
+                            <strong>Email:</strong><br />
+                            @Model.Customer.User.Email
+                        </p>
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <p>
+                            <strong>Gói:</strong><br />
+                            @Model.Package.Name
+                        </p>
+
+                        <p>
+                            <strong>Số tiền:</strong><br />
+
+                            <span class="fs-4 fw-bold">
+                                @Model.Amount.ToString("N0") đ
+                            </span>
+                        </p>
+
+                        <p>
+                            <strong>Trạng thái:</strong><br />
+                            @Model.Status
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                @if (Model.Status == "PENDING")
+                {
+                    <hr />
+
+
+                    <div class="alert alert-warning">
+
+                        Chỉ xác nhận PAID sau khi đã kiểm tra
+                        khách hàng thực sự chuyển khoản.
+
+                    </div>
+
+
+                    <div class="d-flex gap-2">
+
+                        <form asp-action="Confirm"
+                              asp-route-id="@Model.PaymentId"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <button type="submit"
+                                    class="btn btn-success">
+
+                                Xác nhận đã thanh toán
+
+                            </button>
+
+                        </form>
+
+
+                        <form asp-action="MarkFailed"
+                              asp-route-id="@Model.PaymentId"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <button type="submit"
+                                    class="btn btn-danger">
+
+                                Đánh dấu thất bại
+
+                            </button>
+
+                        </form>
+
+                    </div>
+                }
+
+
+                <div class="mt-4">
+
+                    <a asp-action="Index"
+                       class="btn btn-outline-secondary">
+
+                        Quay lại
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

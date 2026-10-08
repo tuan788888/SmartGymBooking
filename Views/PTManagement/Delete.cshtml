@@ -1,0 +1,77 @@
+@model SmartGymBooking.Models.Pt
+
+@{
+    ViewData["Title"] = "Xóa PT";
+}
+
+<div class="row justify-content-center">
+
+    <div class="col-lg-6">
+
+        <div class="smart-card">
+
+            <div class="card-body">
+
+                <h3>
+                    Xóa Personal Trainer
+                </h3>
+
+                <div class="alert alert-danger mt-3">
+                    Bạn có chắc chắn muốn xóa PT này?
+                </div>
+
+
+                <div class="d-flex gap-3 align-items-center mb-4">
+
+                    @if (!string.IsNullOrWhiteSpace(Model.Avatar))
+                    {
+                        <img src="@Model.Avatar"
+                             class="avatar-circle"
+                             style="width:80px;height:80px;"
+                             alt="@Model.FullName" />
+                    }
+
+                    <div>
+
+                        <h5>
+                            @Model.FullName
+                        </h5>
+
+                        <div class="text-muted">
+                            @Model.Specialization
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <form asp-action="DeleteConfirmed"
+                      asp-route-id="@Model.Ptid"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <a asp-action="Index"
+                       class="btn btn-outline-secondary">
+
+                        Hủy
+
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-danger">
+
+                        Xác nhận xóa
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

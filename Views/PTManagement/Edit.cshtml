@@ -1,0 +1,220 @@
+@model SmartGymBooking.ViewModels.PTViewModel
+
+@{
+    ViewData["Title"] = "Sửa PT";
+}
+
+<div class="row justify-content-center">
+
+    <div class="col-xl-8">
+
+        <div class="smart-card">
+
+            <div class="card-header">
+
+                <h4>
+                    Chỉnh sửa Personal Trainer
+                </h4>
+
+            </div>
+
+            <div class="card-body">
+
+                <form asp-action="Edit"
+                      method="post"
+                      enctype="multipart/form-data">
+
+                    @Html.AntiForgeryToken()
+
+                    <input asp-for="PTId"
+                           type="hidden" />
+
+                    
+
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="text-danger mb-3">
+                    </div>
+
+
+                    @if (!string.IsNullOrWhiteSpace(Model.CurrentAvatar))
+                    {
+                        <div class="mb-4">
+
+                            <img src="@Model.CurrentAvatar"
+                                 alt="Ảnh đại diện @Model.FullName"
+                                 class="rounded-circle"
+                                 style="width:120px;height:120px;object-fit:cover;" />
+
+                        </div>
+                    }
+
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+
+                            <label asp-for="FullName"
+                                   class="form-label">
+                                Họ tên
+                            </label>
+
+                            <input asp-for="FullName"
+                                   class="form-control" />
+<span asp-validation-for="FullName" class="text-danger"></span>
+
+                        </div>
+
+
+                        <div class="col-md-6 mb-3">
+
+                            <label asp-for="Specialization"
+                                   class="form-label">
+                                Chuyên môn
+                            </label>
+
+                            <input asp-for="Specialization"
+                                   class="form-control" />
+<span asp-validation-for="Specialization" class="text-danger"></span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+
+                            <label asp-for="Phone"
+                                   class="form-label">
+                                Điện thoại
+                            </label>
+
+                            <input asp-for="Phone"
+                                   class="form-control" />
+<span asp-validation-for="Phone" class="text-danger"></span>
+
+                        </div>
+
+
+                        <div class="col-md-6 mb-3">
+
+                            <label asp-for="Email"
+                                   class="form-label">
+                                Email
+                            </label>
+
+                            <input asp-for="Email"
+                                   class="form-control" />
+<span asp-validation-for="Email" class="text-danger"></span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+
+                            <label asp-for="Experience"
+                                   class="form-label">
+                                Kinh nghiệm
+                            </label>
+
+                            <input asp-for="Experience"
+                                   class="form-control" />
+<span asp-validation-for="Experience" class="text-danger"></span>
+
+                        </div>
+
+
+                        <div class="col-md-6 mb-3">
+
+                            <label asp-for="Status"
+                                   class="form-label">
+                                Trạng thái
+                            </label>
+
+                            <select asp-for="Status"
+                                    class="form-select">
+
+                                <option value="ACTIVE">
+                                    Active
+                                </option>
+
+                                <option value="INACTIVE">
+                                    Inactive
+                                </option>
+
+                            </select>
+<span asp-validation-for="Status" class="text-danger"></span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label asp-for="Description"
+                               class="form-label">
+                            Giới thiệu
+                        </label>
+
+                        <textarea asp-for="Description"
+                                  rows="4"
+                                  class="form-control">
+                        </textarea>
+<span asp-validation-for="Description" class="text-danger"></span>
+
+                    </div>
+
+
+                    <div class="mb-4">
+
+                        <label asp-for="AvatarFile"
+                               class="form-label">
+
+                            Đổi ảnh PT
+
+                        </label>
+
+                        <input asp-for="AvatarFile"
+                               type="file"
+                               accept=".jpg,.jpeg,.png,.webp"
+                               class="form-control" />
+<span asp-validation-for="AvatarFile" class="text-danger"></span>
+
+                    </div>
+
+
+                    <div class="d-flex justify-content-end gap-2">
+
+                        <a asp-action="Index"
+                           class="btn btn-outline-secondary">
+                            Hủy
+                        </a>
+
+                        <button type="submit"
+                                class="btn btn-smart-primary">
+                            Lưu thay đổi
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}

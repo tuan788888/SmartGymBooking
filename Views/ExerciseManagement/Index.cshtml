@@ -1,0 +1,211 @@
+@model IEnumerable<SmartGymBooking.Models.Exercise>
+
+@{
+    ViewData["Title"] = "Thư viện bài tập";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+        <h2 class="page-title">
+            Thư viện bài tập
+        </h2>
+
+        <p class="page-subtitle">
+            Quản lý dữ liệu bài tập cho Workout Plan và AI PT
+        </p>
+    </div>
+
+    <a asp-action="Create"
+       class="btn btn-smart-success">
+
+        + Thêm bài tập
+
+    </a>
+
+</div>
+
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+
+<div class="smart-card mb-4">
+
+    <div class="card-body">
+
+        <form method="get"
+              class="row g-2">
+
+            <div class="col-md-6">
+
+                <input type="text"
+                       name="search"
+                       value="@ViewBag.Search"
+                       class="form-control"
+                       placeholder="Tên bài tập hoặc nhóm cơ..." />
+
+            </div>
+
+
+            <div class="col-md-3">
+
+                <select name="difficulty"
+                        class="form-select">
+
+                    <option value="">
+                        Tất cả độ khó
+                    </option>
+
+                    <option value="BEGINNER" selected="@(ViewBag.Difficulty == "BEGINNER")">
+                        Beginner
+                    </option>
+
+                    <option value="INTERMEDIATE" selected="@(ViewBag.Difficulty == "INTERMEDIATE")">
+                        Intermediate
+                    </option>
+
+                    <option value="ADVANCED" selected="@(ViewBag.Difficulty == "ADVANCED")">
+                        Advanced
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="col-auto">
+
+                <button type="submit"
+                        class="btn btn-smart-primary">
+
+                    Tìm kiếm
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<div class="row g-4">
+
+    @foreach (var exercise in Model)
+    {
+        <div class="col-xl-4 col-md-6">
+
+            <div class="smart-card h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex
+                                justify-content-between
+                                align-items-start">
+
+                        <div>
+
+                            <h5>
+                                @exercise.Name
+                            </h5>
+
+                            <p class="text-muted mb-2">
+                                @exercise.MuscleGroup
+                            </p>
+
+                        </div>
+
+
+                        @if (exercise.Difficulty == "BEGINNER")
+                        {
+                            <span class="badge bg-success">
+                                Beginner
+                            </span>
+                        }
+                        else if (exercise.Difficulty == "INTERMEDIATE")
+                        {
+                            <span class="badge bg-warning text-dark">
+                                Intermediate
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">
+                                Advanced
+                            </span>
+                        }
+
+                    </div>
+
+
+                    <p class="mt-3">
+                        @exercise.Description
+                    </p>
+
+
+                    <p>
+                        <strong>Hướng dẫn kỹ thuật:</strong>
+
+                        @(string.IsNullOrWhiteSpace(
+                            exercise.Instructions)
+                            ? "Chưa cập nhật"
+                            : exercise.Instructions)
+                    </p>
+
+
+                    @if (!string.IsNullOrWhiteSpace(
+                        exercise.VideoUrl))
+                    {
+                        <a href="@exercise.VideoUrl"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="btn btn-sm btn-outline-primary mb-3">
+
+                            Video hướng dẫn
+
+                        </a>
+                    }
+
+
+                    <div class="d-flex gap-2 mt-2">
+
+                        <a asp-action="Edit"
+                           asp-route-id="@exercise.ExerciseId"
+                           class="btn btn-sm btn-outline-warning">
+
+                            Sửa
+
+                        </a>
+
+                        <a asp-action="Delete"
+                           asp-route-id="@exercise.ExerciseId"
+                           class="btn btn-sm btn-outline-danger">
+
+                            Xóa
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+
+</div>

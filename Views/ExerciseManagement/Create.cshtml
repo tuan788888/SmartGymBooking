@@ -1,0 +1,225 @@
+@model SmartGymBooking.ViewModels.ExerciseViewModel
+
+@{
+    ViewData["Title"] = "Thêm bài tập";
+}
+
+<div class="row justify-content-center">
+
+    <div class="col-xl-8">
+
+        <div class="smart-card">
+
+            <div class="card-header">
+
+                <h4>
+                    Thêm bài tập
+                </h4>
+
+            </div>
+
+            <div class="card-body">
+
+                <form asp-action="Create"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="text-danger mb-3">
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label asp-for="Name"
+                               class="form-label">
+
+                            Tên bài tập
+
+                        </label>
+
+                        <input asp-for="Name"
+                               class="form-control"
+                               placeholder="Ví dụ: Bench Press" />
+
+                        <span asp-validation-for="Name"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+
+                            <label asp-for="MuscleGroup"
+                                   class="form-label">
+
+                                Nhóm cơ
+
+                            </label>
+
+                            <select asp-for="MuscleGroup"
+                                    class="form-select">
+
+                                <option value="">
+                                    -- Chọn nhóm cơ --
+                                </option>
+
+                                <option value="CHEST">
+                                    Ngực
+                                </option>
+
+                                <option value="BACK">
+                                    Lưng
+                                </option>
+
+                                <option value="SHOULDERS">
+                                    Vai
+                                </option>
+
+                                <option value="ARMS">
+                                    Tay
+                                </option>
+
+                                <option value="LEGS">
+                                    Chân
+                                </option>
+
+                                <option value="CORE">
+                                    Bụng/Core
+                                </option>
+
+                                <option value="FULL_BODY">
+                                    Toàn thân
+                                </option>
+
+                            </select>
+<span asp-validation-for="MuscleGroup" class="text-danger"></span>
+
+                        </div>
+
+
+                        <div class="col-md-6 mb-3">
+
+                            <label asp-for="Difficulty"
+                                   class="form-label">
+
+                                Độ khó
+
+                            </label>
+
+                            <select asp-for="Difficulty"
+                                    class="form-select">
+
+                                <option value="BEGINNER">
+                                    Beginner
+                                </option>
+
+                                <option value="INTERMEDIATE">
+                                    Intermediate
+                                </option>
+
+                                <option value="ADVANCED">
+                                    Advanced
+                                </option>
+
+                            </select>
+<span asp-validation-for="Difficulty" class="text-danger"></span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label asp-for="Instructions"
+                               class="form-label">
+
+                            Hướng dẫn kỹ thuật
+
+                        </label>
+
+                        <input asp-for="Instructions"
+                               class="form-control"
+                               placeholder="Hướng dẫn thực hiện bài tập..." />
+<span asp-validation-for="Instructions" class="text-danger"></span>
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label asp-for="VideoUrl"
+                               class="form-label">
+
+                            Video hướng dẫn
+
+                        </label>
+
+                        <input asp-for="VideoUrl"
+                               class="form-control"
+                               placeholder="https://www.youtube.com/watch?v=..." />
+
+                        <span asp-validation-for="VideoUrl"
+                              class="text-danger">
+                        </span>
+
+                        <div class="form-text">
+                            Ưu tiên link YouTube hướng dẫn kỹ thuật.
+                        </div>
+
+                    </div>
+
+
+                    <div class="mb-4">
+
+                        <label asp-for="Description"
+                               class="form-label">
+
+                            Mô tả / kỹ thuật
+
+                        </label>
+
+                        <textarea asp-for="Description"
+                                  rows="5"
+                                  class="form-control">
+                        </textarea>
+<span asp-validation-for="Description" class="text-danger"></span>
+
+                    </div>
+
+
+                    <div class="d-flex justify-content-end gap-2">
+
+                        <a asp-action="Index"
+                           class="btn btn-outline-secondary">
+                            Hủy
+                        </a>
+
+                        <button type="submit"
+                                class="btn btn-smart-success">
+
+                            Thêm bài tập
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}

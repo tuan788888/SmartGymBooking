@@ -1,0 +1,196 @@
+@model IEnumerable<SmartGymBooking.Models.Package>
+
+@{
+    ViewData["Title"] = "Quản lý gói tập";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+        <h2 class="page-title">
+            Gói tập
+        </h2>
+
+        <p class="page-subtitle">
+            Quản lý các gói thành viên SmartGym
+        </p>
+    </div>
+
+    <a asp-action="Create"
+       class="btn btn-smart-success">
+
+        + Thêm gói
+
+    </a>
+
+</div>
+
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+
+<div class="smart-card mb-4">
+
+    <div class="card-body">
+
+        <form method="get"
+              class="row g-2">
+
+            <div class="col-md-8">
+
+                <input type="text"
+                       name="search"
+                       value="@ViewBag.Search"
+                       class="form-control"
+                       placeholder="Tìm tên gói..." />
+
+            </div>
+
+            <div class="col-auto">
+
+                <button type="submit"
+                        class="btn btn-smart-primary">
+
+                    Tìm kiếm
+
+                </button>
+
+            </div>
+
+            <div class="col-auto">
+
+                <a asp-action="Index"
+                   class="btn btn-outline-secondary">
+
+                    Làm mới
+
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<div class="row g-4">
+
+    @if (!Model.Any())
+    {
+        <div class="col-12"><div class="smart-card"><div class="card-body text-center text-muted">Không tìm thấy gói tập.</div></div></div>
+    }
+
+    @foreach (var package in Model)
+    {
+        <div class="col-xl-3 col-md-6">
+
+            <div class="smart-card h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between mb-3">
+
+                        <h5>
+                            @package.Name
+                        </h5>
+
+                        @if (package.IsActive)
+                        {
+                            <span class="badge badge-soft-success">
+                                Active
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-soft-danger">
+                                Inactive
+                            </span>
+                        }
+
+                    </div>
+
+
+                    <h3 class="fw-bold">
+                        @package.Price.ToString("N0") đ
+                    </h3>
+
+
+                    <p class="text-muted">
+                        @package.DurationDays ngày
+                    </p>
+
+
+                    <p>
+                        @package.Description
+                    </p>
+
+
+                    @if (package.IncludesPt)
+                    {
+                        <span class="badge bg-success mb-3">
+                            Có PT
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary mb-3">
+                            Không PT
+                        </span>
+                    }
+
+
+                    <div class="d-flex flex-wrap gap-2 mt-3">
+
+                        <a asp-action="Edit"
+                           asp-route-id="@package.PackageId"
+                           class="btn btn-sm btn-outline-warning">
+                            Sửa
+                        </a>
+
+                        <form asp-action="ToggleStatus"
+                              asp-route-id="@package.PackageId"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <button type="submit"
+                                    class="btn btn-sm btn-outline-secondary">
+
+                                @(package.IsActive
+                                    ? "Inactive"
+                                    : "Active")
+
+                            </button>
+
+                        </form>
+
+                        <a asp-action="Delete"
+                           asp-route-id="@package.PackageId"
+                           class="btn btn-sm btn-outline-danger">
+                            Xóa
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+
+</div>

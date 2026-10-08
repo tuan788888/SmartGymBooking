@@ -1,0 +1,59 @@
+@model SmartGymBooking.Models.Package
+
+@{
+    ViewData["Title"] = "Xóa gói tập";
+}
+
+<div class="row justify-content-center">
+
+    <div class="col-lg-6">
+
+        <div class="smart-card">
+
+            <div class="card-body">
+
+                <h3>Xóa gói tập</h3>
+
+                <div class="alert alert-danger mt-3">
+                    Bạn có chắc chắn muốn xóa gói này?
+                </div>
+
+                <h5>
+                    @Model.Name
+                </h5>
+
+                <p>
+                    <strong>Giá:</strong>
+                    @Model.Price.ToString("N0") đ
+                </p>
+
+                <p>
+                    <strong>Thời hạn:</strong>
+                    @Model.DurationDays ngày
+                </p>
+
+                <form asp-action="DeleteConfirmed"
+                      asp-route-id="@Model.PackageId"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <a asp-action="Index"
+                       class="btn btn-outline-secondary">
+                        Hủy
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-danger">
+                        Xác nhận xóa
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

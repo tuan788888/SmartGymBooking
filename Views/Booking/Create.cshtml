@@ -1,0 +1,139 @@
+@model SmartGymBooking.ViewModels.BookingCreateViewModel
+
+@{
+    ViewData["Title"] = "Đặt lịch";
+}
+
+<div class="row justify-content-center">
+
+    <div class="col-xl-7">
+
+        <div class="smart-card">
+
+            <div class="card-header">
+
+                <h4>
+                    Đặt lịch tập
+                </h4>
+
+            </div>
+
+            <div class="card-body">
+
+                <div asp-validation-summary="ModelOnly"
+                     class="alert alert-danger">
+                </div>
+
+
+                <form asp-action="Create"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+
+                    <div class="mb-3">
+
+                        <label asp-for="ServiceId"
+                               class="form-label">
+
+                            Dịch vụ
+
+                        </label>
+
+                        <select asp-for="ServiceId"
+                                asp-items="Model.Services"
+                                class="form-select">
+
+                            <option value="">
+                                -- Chọn dịch vụ --
+                            </option>
+
+                        </select>
+
+                        <span asp-validation-for="ServiceId"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label asp-for="StartTime"
+                               class="form-label">
+
+                            Thời gian bắt đầu
+
+                        </label>
+
+                        <input asp-for="StartTime"
+                               type="datetime-local"
+                               class="form-control" />
+
+                        <span asp-validation-for="StartTime"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+
+                    <div class="mb-4">
+
+                        <label asp-for="EndTime"
+                               class="form-label">
+
+                            Thời gian kết thúc
+
+                        </label>
+
+                        <input asp-for="EndTime"
+                               type="datetime-local"
+                               class="form-control" />
+
+                        <span asp-validation-for="EndTime"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+
+                    <div class="alert alert-info">
+
+                        Bạn phải có Membership đang hoạt động
+                        để đặt lịch.
+
+                    </div>
+
+
+                    <div class="d-flex justify-content-end gap-2">
+
+                        <a asp-action="Index"
+                           class="btn btn-outline-secondary">
+
+                            Hủy
+
+                        </a>
+
+                        <button type="submit"
+                                class="btn btn-smart-success">
+
+                            Đặt lịch
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}

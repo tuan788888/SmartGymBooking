@@ -1,0 +1,159 @@
+@model SmartGymBooking.Models.WorkoutPlan
+
+@{
+    ViewData["Title"] = "Chi tiết giáo án";
+
+    var days = Model.WorkoutExercises
+        .GroupBy(x => x.DayNumber)
+        .OrderBy(x => x.Key);
+}
+
+
+<div class="mb-4">
+
+    <a asp-action="Index"
+       class="text-decoration-none">
+
+        ← Giáo án của tôi
+
+    </a>
+
+    <h2 class="page-title mt-3">
+        @Model.Title
+    </h2>
+
+
+    @if (!string.IsNullOrWhiteSpace(
+        Model.PredictedPlanType))
+    {
+        <span class="badge bg-success">
+            @Model.PredictedPlanType
+        </span>
+    }
+
+</div>
+
+
+@foreach (var day in days)
+{
+    <div class="smart-card mb-4">
+
+        <div class="card-header">
+
+            <h4>
+                Ngày @day.Key
+            </h4>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table align-middle">
+
+                    <thead>
+
+                        <tr>
+                            <th>Bài tập</th>
+                            <th>Nhóm cơ</th>
+                            <th>Sets</th>
+                            <th>Reps</th>
+                            <th>Nghỉ</th>
+                            <th>Video</th>
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        @foreach (var item in day.OrderBy(x => x.OrderNumber).ThenBy(x => x.WorkoutExerciseId))
+                        {
+                            <tr>
+
+                                <td>
+
+                                    <strong>
+                                        @item.Exercise.Name
+                                    </strong>
+
+                                    @if (!string.IsNullOrWhiteSpace(
+                                        item.Note))
+                                    {
+                                        <div class="small text-muted">
+                                            @item.Note
+                                        </div>
+                                    }
+
+                                </td>
+
+
+                                <td>
+                                    @item.Exercise.MuscleGroup
+                                </td>
+
+
+                                <td>
+                                    @item.Sets
+                                </td>
+
+
+                                <td>
+                                    @item.Reps
+                                </td>
+
+
+                                <td>
+
+                                    @if (item.RestSeconds != null)
+                                    {
+                                        <span>
+                                            @item.RestSeconds giây
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span>-</span>
+                                    }
+
+                                </td>
+
+
+                                <td>
+
+                                    @if (!string.IsNullOrWhiteSpace(
+                                        item.Exercise.VideoUrl))
+                                    {
+                                        <a href="@item.Exercise.VideoUrl"
+                                           target="_blank"
+                                           rel="noopener noreferrer"
+                                           class="btn btn-sm btn-outline-primary">
+
+                                            Xem video
+
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">
+                                            Chưa có
+                                        </span>
+                                    }
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+}

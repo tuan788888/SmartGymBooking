@@ -1,4 +1,4 @@
-Place the original Vietcombank QR image provided by the owner here as `bank-qr.png`.
+Place the original Vietcombank QR image provided by the owner here as `bank-qr.jpg`.
 
 Recipient: LE ANH TUAN
 Account: 1041192956

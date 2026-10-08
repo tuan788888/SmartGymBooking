@@ -162,7 +162,7 @@ namespace SmartGymBooking.Controllers
 
                 IncludesPT = payment.Package.IncludesPt,
 
-                QrImageUrl = "/images/payment/bank-qr.png"
+                QrImageUrl = "/images/payment/bank-qr.jpg"
             };
 
 

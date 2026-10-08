@@ -19,6 +19,6 @@ namespace SmartGymBooking.ViewModels
         public bool IncludesPT { get; set; }
 
         public string QrImageUrl { get; set; }
-            = "/images/payment/bank-qr.png";
+            = "/images/payment/bank-qr.jpg";
     }
 }

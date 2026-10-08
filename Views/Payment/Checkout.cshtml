@@ -114,7 +114,7 @@
 
                         @if (Model.Status == "PENDING")
                         {
-                        @if (System.IO.File.Exists(System.IO.Path.Combine(Environment.WebRootPath, "images", "payment", "bank-qr.png")))
+                        @if (System.IO.File.Exists(System.IO.Path.Combine(Environment.WebRootPath, "images", "payment", "bank-qr.jpg")))
                         {
                         <img src="@Model.QrImageUrl"
                              alt="QR thanh toán"

@@ -1,0 +1,186 @@
+@model IEnumerable<SmartGymBooking.Models.Ptschedule>
+
+@{
+    ViewData["Title"] = "Lịch PT";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+
+        <h2 class="page-title">
+            Lịch Personal Trainer
+        </h2>
+
+        <p class="page-subtitle">
+            Quản lý lịch PT của khách hàng
+        </p>
+
+    </div>
+
+    <a asp-action="Create"
+       class="btn btn-smart-success">
+
+        + Xếp lịch PT
+
+    </a>
+
+</div>
+
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+
+<div class="table-shell">
+
+    <div class="table-responsive">
+
+        <table class="table align-middle">
+
+            <thead>
+
+                <tr>
+                    <th>Khách hàng</th>
+                    <th>PT</th>
+                    <th>Bắt đầu</th>
+                    <th>Kết thúc</th>
+                    <th>Trạng thái</th>
+                    <th>Ghi chú</th>
+                    <th>Thao tác</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                @foreach (var schedule in Model)
+                {
+                    <tr>
+
+                        <td>
+
+                            <strong>
+                                @schedule.Customer.FullName
+                            </strong>
+
+                            <div class="small text-muted">
+                                @schedule.Customer.User.Email
+                            </div>
+
+                        </td>
+
+
+                        <td>
+                            @schedule.Pt.FullName
+                        </td>
+
+
+                        <td>
+                            @schedule.StartTime.ToString(
+                                "dd/MM/yyyy HH:mm"
+                            )
+                        </td>
+
+
+                        <td>
+                            @schedule.EndTime.ToString(
+                                "dd/MM/yyyy HH:mm"
+                            )
+                        </td>
+
+
+                        <td>
+
+                            @if (schedule.Status == "SCHEDULED")
+                            {
+                                <span class="badge bg-primary">
+                                    Scheduled
+                                </span>
+                            }
+                            else if (schedule.Status == "COMPLETED")
+                            {
+                                <span class="badge bg-success">
+                                    Completed
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    @schedule.Status
+                                </span>
+                            }
+
+                        </td>
+
+
+                        <td>
+                            @schedule.Note
+                        </td>
+
+
+                        <td>
+
+                            <div class="d-flex gap-2">
+
+                                @if (schedule.Status == "SCHEDULED")
+                                {
+                                    @if (schedule.EndTime <= DateTime.Now) {
+<form asp-action="Complete"
+                                          asp-route-id="@schedule.PtscheduleId"
+                                          method="post">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <button type="submit"
+                                                class="btn btn-sm btn-success">
+
+                                            Hoàn thành
+
+                                        </button>
+
+                                    </form>
+}
+
+
+                                    <form asp-action="Cancel"
+                                          asp-route-id="@schedule.PtscheduleId"
+                                          method="post">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <button type="submit"
+                                                class="btn btn-sm btn-outline-danger">
+
+                                            Hủy
+
+                                        </button>
+
+                                    </form>
+                                }
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>

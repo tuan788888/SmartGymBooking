@@ -1,0 +1,187 @@
+@model SmartGymBooking.ViewModels.PTScheduleViewModel
+
+@{
+    ViewData["Title"] = "Xếp lịch PT";
+}
+
+<div class="row justify-content-center">
+
+    <div class="col-xl-8">
+
+        <div class="smart-card">
+
+            <div class="card-header">
+
+                <h4>
+                    Xếp lịch Personal Trainer
+                </h4>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <div class="alert alert-info">
+
+                    Lịch PT chỉ được tạo từ hiện tại
+                    đến tối đa 14 ngày tiếp theo.
+
+                </div>
+
+
+                <div asp-validation-summary="ModelOnly"
+                     class="alert alert-danger">
+                </div>
+
+
+                <form asp-action="Create"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+
+                    <div class="mb-3">
+
+                        <label asp-for="CustomerId"
+                               class="form-label">
+
+                            Khách hàng
+
+                        </label>
+
+                        <select asp-for="CustomerId"
+                                asp-items="Model.Customers"
+                                class="form-select">
+
+                            <option value="">
+                                -- Chọn khách hàng --
+                            </option>
+
+                        </select>
+
+                        <span asp-validation-for="CustomerId"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label asp-for="PTId"
+                               class="form-label">
+
+                            Personal Trainer
+
+                        </label>
+
+                        <select asp-for="PTId"
+                                asp-items="Model.PTs"
+                                class="form-select">
+
+                            <option value="">
+                                -- Chọn PT --
+                            </option>
+
+                        </select>
+
+                        <span asp-validation-for="PTId"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+
+                            <label asp-for="StartTime"
+                                   class="form-label">
+
+                                Bắt đầu
+
+                            </label>
+
+                            <input asp-for="StartTime"
+                                   type="datetime-local"
+                                   class="form-control" />
+
+                            <span asp-validation-for="StartTime"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <div class="col-md-6 mb-3">
+
+                            <label asp-for="EndTime"
+                                   class="form-label">
+
+                                Kết thúc
+
+                            </label>
+
+                            <input asp-for="EndTime"
+                                   type="datetime-local"
+                                   class="form-control" />
+
+                            <span asp-validation-for="EndTime"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="mb-4">
+
+                        <label asp-for="Note"
+                               class="form-label">
+
+                            Ghi chú
+
+                        </label>
+
+                        <textarea asp-for="Note"
+                                  rows="3"
+                                  class="form-control">
+                        </textarea>
+
+                    </div>
+
+
+                    <div class="d-flex justify-content-end gap-2">
+
+                        <a asp-action="Index"
+                           class="btn btn-outline-secondary">
+
+                            Hủy
+
+                        </a>
+
+                        <button type="submit"
+                                class="btn btn-smart-success">
+
+                            Xếp lịch
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,112 @@
+@model IEnumerable<SmartGymBooking.Models.Booking>
+
+@{
+    ViewData["Title"] = "Check-in khách hàng";
+}
+
+<div class="mb-4">
+
+    <h2 class="page-title">
+        Check-in khách hàng
+    </h2>
+
+    <p class="page-subtitle">
+        Chọn Booking đã được xác nhận
+    </p>
+
+</div>
+
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+
+<div class="table-shell">
+
+    <div class="table-responsive">
+
+        <table class="table align-middle">
+
+            <thead>
+
+                <tr>
+                    <th>Khách hàng</th>
+                    <th>Dịch vụ</th>
+                    <th>Bắt đầu</th>
+                    <th>Kết thúc</th>
+                    <th></th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                @foreach (var booking in Model)
+                {
+                    <tr>
+
+                        <td>
+                            @booking.Customer.FullName
+                        </td>
+
+                        <td>
+                            @booking.Service.Name
+                        </td>
+
+                        <td>
+                            @booking.StartTime.ToString(
+                                "dd/MM/yyyy HH:mm"
+                            )
+                        </td>
+
+                        <td>
+                            @booking.EndTime.ToString(
+                                "dd/MM/yyyy HH:mm"
+                            )
+                        </td>
+
+                        <td>
+
+                            <form asp-action="CheckIn"
+                                  asp-route-bookingId="@booking.BookingId"
+                                  method="post">
+
+                                @Html.AntiForgeryToken()
+
+                                <button type="submit"
+                                        class="btn btn-sm btn-success">
+
+                                    Check-in
+
+                                </button>
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<div class="mt-3">
+
+    <a asp-action="Index"
+       class="btn btn-outline-secondary">
+
+        Quay lại
+
+    </a>
+
+</div>

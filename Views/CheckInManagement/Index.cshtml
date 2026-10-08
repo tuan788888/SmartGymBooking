@@ -1,0 +1,105 @@
+@model IEnumerable<SmartGymBooking.Models.CheckIn>
+
+@{
+    ViewData["Title"] = "Check-in";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+
+        <h2 class="page-title">
+            Check-in
+        </h2>
+
+        <p class="page-subtitle">
+            Lịch sử khách hàng vào phòng tập
+        </p>
+
+    </div>
+
+    <a asp-action="Create"
+       class="btn btn-smart-success">
+
+        + Check-in khách hàng
+
+    </a>
+
+</div>
+
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+
+<div class="table-shell">
+
+    <div class="table-responsive">
+
+        <table class="table align-middle">
+
+            <thead>
+
+                <tr>
+                    <th>ID</th>
+                    <th>Khách hàng</th>
+                    <th>Dịch vụ</th>
+                    <th>Booking</th>
+                    <th>Check-in lúc</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                @foreach (var item in Model)
+                {
+                    <tr>
+
+                        <td>
+                            @item.CheckInId
+                        </td>
+
+                        <td>
+                            <strong>
+                                @item.Customer.FullName
+                            </strong>
+                        </td>
+
+                        <td>
+                            @(item.Booking != null
+                                ? item.Booking.Service.Name
+                                : "Check-in tự do")
+                        </td>
+
+                        <td>
+                            @(item.BookingId?.ToString() ?? "-")
+                        </td>
+
+                        <td>
+                            @item.CheckInTime.ToString(
+                                "dd/MM/yyyy HH:mm"
+                            )
+                        </td>
+
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>

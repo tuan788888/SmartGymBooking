@@ -74,12 +74,7 @@
 
                     @if (User.IsInRole("CUSTOMER"))
                     {
-                        <a href="#"
-                           class="btn btn-smart-success w-100 mt-3">
-
-                            Chọn gói
-
-                        </a>
+                        <form asp-controller="Payment" asp-action="Create" method="post" class="mt-3"><input type="hidden" name="packageId" value="@package.PackageId" /><button type="submit" class="btn btn-smart-success w-100">Chọn gói</button></form>
                     }
                     else if (User.Identity?.IsAuthenticated != true)
                     {

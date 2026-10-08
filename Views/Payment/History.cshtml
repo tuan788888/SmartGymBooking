@@ -1,0 +1,162 @@
+@model IEnumerable<SmartGymBooking.Models.Payment>
+
+@{
+    ViewData["Title"] = "Lịch sử thanh toán";
+}
+
+<div class="mb-4">
+
+    <h2 class="page-title">
+        Lịch sử thanh toán
+    </h2>
+
+    <p class="page-subtitle">
+        Theo dõi các giao dịch mua gói SmartGym
+    </p>
+
+</div>
+
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+
+<div class="table-shell">
+
+    <div class="table-responsive">
+
+        <table class="table align-middle">
+
+            <thead>
+
+                <tr>
+                    <th>Mã</th>
+                    <th>Gói</th>
+                    <th>Số tiền</th>
+                    <th>Phương thức</th>
+                    <th>Ngày tạo</th>
+                    <th>Trạng thái</th>
+                    <th></th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                @foreach (var payment in Model)
+                {
+                    <tr>
+
+                        <td>
+                            <strong>
+                                @payment.PaymentCode
+                            </strong>
+                        </td>
+
+                        <td>
+                            @payment.Package.Name
+                        </td>
+
+                        <td>
+                            @payment.Amount.ToString("N0") đ
+                        </td>
+
+                        <td>
+                            QR chuyển khoản
+                        </td>
+
+                        <td>
+                            @payment.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                        </td>
+
+                        <td>
+
+                            @switch (payment.Status)
+                            {
+                                case "PAID":
+
+                                    <span class="badge bg-success">
+                                        Đã thanh toán
+                                    </span>
+
+                                    break;
+
+                                case "PENDING":
+
+                                    <span class="badge bg-warning text-dark">
+                                        Chờ xác nhận
+                                    </span>
+
+                                    break;
+
+                                case "CANCELLED":
+
+                                    <span class="badge bg-secondary">
+                                        Đã hủy
+                                    </span>
+
+                                    break;
+
+                                default:
+
+                                    <span class="badge bg-danger">
+                                        @payment.Status
+                                    </span>
+
+                                    break;
+                            }
+
+                        </td>
+
+                        <td>
+
+                            @if (payment.Status == "PENDING")
+                            {
+                                <a asp-action="Checkout"
+                                   asp-route-id="@payment.PaymentId"
+                                   class="btn btn-sm btn-outline-primary">
+
+                                    QR
+
+                                </a>
+
+                                <form asp-action="Cancel"
+                                      asp-route-id="@payment.PaymentId"
+                                      method="post"
+                                      class="d-inline">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-danger">
+
+                                        Hủy
+
+                                    </button>
+
+                                </form>
+                            }
+
+                        </td>
+
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>

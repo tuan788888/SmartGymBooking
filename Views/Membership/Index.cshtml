@@ -1,0 +1,152 @@
+@model IEnumerable<SmartGymBooking.Models.Membership>
+
+@{
+    ViewData["Title"] = "Membership của tôi";
+}
+
+<div class="mb-4">
+
+    <h2 class="page-title">
+        Membership của tôi
+    </h2>
+
+    <p class="page-subtitle">
+        Các gói tập đã được kích hoạt
+    </p>
+
+</div>
+
+
+<div class="row g-4">
+
+    @if (!Model.Any())
+    {
+        <div class="col-12">
+
+            <div class="smart-card">
+
+                <div class="card-body text-center py-5">
+
+                    <h4>
+                        Bạn chưa có Membership
+                    </h4>
+
+                    <p class="text-muted">
+
+                        Hãy chọn một gói tập để bắt đầu.
+
+                    </p>
+
+                    <a asp-controller="Package"
+                       asp-action="Index"
+                       class="btn btn-smart-success">
+
+                        Xem gói tập
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+
+
+    @foreach (var membership in Model)
+    {
+        <div class="col-lg-6">
+
+            <div class="smart-card h-100">
+
+                <div class="card-body p-4">
+
+                    <div class="d-flex
+                                justify-content-between
+                                align-items-start">
+
+                        <div>
+
+                            <h3>
+                                @membership.Package.Name
+                            </h3>
+
+                            @if (membership.Package.IncludesPt)
+                            {
+                                <span class="badge bg-success">
+                                    Có PT
+                                </span>
+                            }
+
+                        </div>
+
+
+                        @if (membership.Status == "ACTIVE")
+                        {
+                            <span class="badge badge-soft-success">
+                                Active
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-soft-danger">
+                                @membership.Status
+                            </span>
+                        }
+
+                    </div>
+
+
+                    <hr />
+
+
+                    <div class="row">
+
+                        <div class="col-6">
+
+                            <small class="text-muted">
+                                Ngày bắt đầu
+                            </small>
+
+                            <div class="fw-bold">
+                                @membership.StartDate
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-6">
+
+                            <small class="text-muted">
+                                Ngày kết thúc
+                            </small>
+
+                            <div class="fw-bold">
+                                @membership.EndDate
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="mt-4">
+
+                        <small class="text-muted">
+                            Payment
+                        </small>
+
+                        <div>
+                            @membership.Payment.PaymentCode
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+
+</div>

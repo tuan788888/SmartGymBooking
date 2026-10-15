@@ -17,6 +17,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddSingleton<IWorkoutRecommendationService, WorkoutRecommendationService>();
 builder.Services.AddScoped<IWorkoutPlanGeneratorService, WorkoutPlanGeneratorService>();
+builder.Services.AddScoped<DemoAIChatService>();
+builder.Services.AddHttpClient<OpenAIChatService>(client => client.Timeout = TimeSpan.FromSeconds(45));
+builder.Services.AddScoped<IAIChatService, AIChatRouterService>();
 
 // Password hashing
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();

@@ -1,35 +1,236 @@
+@using System.Text.Json
+@model SmartGymBooking.ViewModels.AdminDashboardViewModel
+
 @{
     ViewData["Title"] = "Admin Dashboard";
 }
 
-<div class="container">
 
-    <div class="mb-4">
+<div class="mb-4">
 
-        <h1>Admin Dashboard</h1>
+    <h2 class="page-title">
+        Dashboard
+    </h2>
 
-        <p class="text-muted">
+    <p class="page-subtitle">
+        Tổng quan hoạt động SmartGym
+    </p>
 
-            Quản trị hệ thống SmartGym Booking
+</div>
 
-        </p>
+
+<!-- ============================= -->
+<!-- SUMMARY -->
+<!-- ============================= -->
+
+<div class="row g-3 mb-4">
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="smart-card stat-card h-100">
+
+            <div class="card-body">
+
+                <div class="text-muted mb-2">
+                    Khách hàng
+                </div>
+
+                <h2 class="fw-bold mb-1">
+                    @Model.TotalCustomers
+                </h2>
+
+                <small class="text-success">
+                    @Model.ActiveCustomers đang hoạt động
+                </small>
+
+            </div>
+
+        </div>
 
     </div>
 
 
-    <div class="row g-4">
+    <div class="col-xl-3 col-md-6">
 
-        <div class="col-md-3">
+        <div class="smart-card stat-card h-100">
 
-            <div class="card shadow-sm">
+            <div class="card-body">
 
-                <div class="card-body">
+                <div class="text-muted mb-2">
+                    Personal Trainer
+                </div>
 
-                    <h5>Khách hàng</h5>
+                <h2 class="fw-bold mb-1">
+                    @Model.ActivePTs
+                </h2>
 
-                    <p class="display-6">
-                        --
-                    </p>
+                <small class="text-muted">
+                    / @Model.TotalPTs PT
+                </small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="smart-card stat-card h-100">
+
+            <div class="card-body">
+
+                <div class="text-muted mb-2">
+                    Membership Active
+                </div>
+
+                <h2 class="fw-bold">
+                    @Model.ActiveMemberships
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-xl-3 col-md-6">
+
+        <div class="smart-card stat-card h-100">
+
+            <div class="card-body">
+
+                <div class="text-muted mb-2">
+                    Doanh thu tháng
+                </div>
+
+                <h2 class="fw-bold">
+                    @Model.RevenueThisMonth.ToString("N0") đ
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="row g-3 mb-4">
+
+    <div class="col-xl col-md-4">
+
+        <div class="smart-card h-100">
+
+            <div class="card-body text-center">
+
+                <div class="text-muted">
+                    Booking hôm nay
+                </div>
+
+                <h3 class="mt-2">
+                    @Model.TodayBookings
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-xl col-md-4">
+
+        <div class="smart-card h-100">
+
+            <div class="card-body text-center">
+
+                <div class="text-muted">
+                    Check-in hôm nay
+                </div>
+
+                <h3 class="mt-2">
+                    @Model.TodayCheckIns
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-xl col-md-4">
+
+        <div class="smart-card h-100">
+
+            <div class="card-body text-center">
+
+                <div class="text-muted">
+                    Payment chờ xác nhận
+                </div>
+
+                <h3 class="mt-2 text-warning">
+                    @Model.PendingPayments
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-xl col-md-4">
+
+        <div class="smart-card h-100">
+
+            <div class="card-body text-center">
+
+                <div class="text-muted">
+                    Lịch PT 14 ngày tới
+                </div>
+
+                <h3 class="mt-2">
+                    @Model.UpcomingPTSchedules
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ============================= -->
+<!-- CHART -->
+<!-- ============================= -->
+
+<div class="row g-4 mb-4">
+
+    <div class="col-lg-8">
+
+        <div class="smart-card h-100">
+
+            <div class="card-header">
+
+                <h5 class="mb-0">
+                    Doanh thu 6 tháng gần nhất
+                </h5>
+
+            </div>
+
+            <div class="card-body">
+
+                <div style="height:320px;">
+
+                    <canvas id="revenueChart">
+                    </canvas>
 
                 </div>
 
@@ -37,56 +238,27 @@
 
         </div>
 
+    </div>
 
-        <div class="col-md-3">
 
-            <div class="card shadow-sm">
+    <div class="col-lg-4">
 
-                <div class="card-body">
+        <div class="smart-card h-100">
 
-                    <h5>Nhân viên</h5>
+            <div class="card-header">
 
-                    <p class="display-6">
-                        --
-                    </p>
-
-                </div>
+                <h5 class="mb-0">
+                    Trạng thái Booking
+                </h5>
 
             </div>
 
-        </div>
+            <div class="card-body">
 
+                <div style="height:320px;">
 
-        <div class="col-md-3">
-
-            <div class="card shadow-sm">
-
-                <div class="card-body">
-
-                    <h5>PT</h5>
-
-                    <p class="display-6">
-                        --
-                    </p>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="col-md-3">
-
-            <div class="card shadow-sm">
-
-                <div class="card-body">
-
-                    <h5>Booking</h5>
-
-                    <p class="display-6">
-                        --
-                    </p>
+                    <canvas id="bookingChart">
+                    </canvas>
 
                 </div>
 
@@ -97,3 +269,375 @@
     </div>
 
 </div>
+
+
+<!-- ============================= -->
+<!-- PAYMENT -->
+<!-- ============================= -->
+
+<div class="smart-card mb-4">
+
+    <div class="card-header
+                d-flex
+                justify-content-between
+                align-items-center">
+
+        <h5 class="mb-0">
+            Giao dịch gần nhất
+        </h5>
+
+        <a asp-controller="PaymentManagement"
+           asp-action="Index"
+           class="btn btn-sm btn-outline-dark">
+
+            Xem tất cả
+
+        </a>
+
+    </div>
+
+
+    <div class="table-responsive">
+
+        <table class="table align-middle mb-0">
+
+            <thead>
+
+                <tr>
+                    <th>Mã</th>
+                    <th>Khách hàng</th>
+                    <th>Gói</th>
+                    <th>Số tiền</th>
+                    <th>Trạng thái</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                @if (!Model.RecentPayments.Any())
+                {
+                    <tr><td colspan="5" class="text-center text-muted py-4">Chưa có giao dịch.</td></tr>
+                }
+
+                @foreach (var payment
+                          in Model.RecentPayments)
+                {
+                    <tr>
+
+                        <td>
+                            @payment.PaymentCode
+                        </td>
+
+                        <td>
+                            @payment.Customer.FullName
+                        </td>
+
+                        <td>
+                            @payment.Package.Name
+                        </td>
+
+                        <td>
+                            @payment.Amount.ToString("N0") đ
+                        </td>
+
+                        <td>
+
+                            @if (payment.Status == "PAID")
+                            {
+                                <span class="badge bg-success">
+                                    PAID
+                                </span>
+                            }
+                            else if (payment.Status == "PENDING")
+                            {
+                                <span class="badge bg-warning text-dark">
+                                    PENDING
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    @payment.Status
+                                </span>
+                            }
+
+                        </td>
+
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<div class="row g-4">
+
+    <!-- RECENT BOOKING -->
+
+    <div class="col-lg-7">
+
+        <div class="smart-card h-100">
+
+            <div class="card-header
+                        d-flex
+                        justify-content-between">
+
+                <h5 class="mb-0">
+                    Booking gần nhất
+                </h5>
+
+                <a asp-controller="BookingManagement"
+                   asp-action="Index"
+                   class="btn
+                          btn-sm
+                          btn-outline-dark">
+
+                    Xem tất cả
+
+                </a>
+
+            </div>
+
+
+            <div class="table-responsive">
+
+                <table class="table
+                              align-middle
+                              mb-0">
+
+                    <thead>
+
+                        <tr>
+                            <th>Khách</th>
+                            <th>Dịch vụ</th>
+                            <th>Thời gian</th>
+                            <th>Trạng thái</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @if (!Model.RecentBookings.Any())
+                        {
+                            <tr><td colspan="4" class="text-center text-muted py-4">Chưa có booking.</td></tr>
+                        }
+
+                        @foreach (var booking
+                                  in Model.RecentBookings)
+                        {
+                            <tr>
+
+                                <td>
+                                    @booking.Customer.FullName
+                                </td>
+
+                                <td>
+                                    @booking.Service.Name
+                                </td>
+
+                                <td>
+                                    @booking.StartTime.ToString(
+                                        "dd/MM HH:mm"
+                                    )
+                                </td>
+
+                                <td>
+                                    @booking.Status
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- PT -->
+
+    <div class="col-lg-5">
+
+        <div class="smart-card h-100">
+
+            <div class="card-header
+                        d-flex
+                        justify-content-between">
+
+                <h5 class="mb-0">
+                    Lịch PT sắp tới
+                </h5>
+
+                <a asp-controller="PTScheduleManagement"
+                   asp-action="Index"
+                   class="btn
+                          btn-sm
+                          btn-outline-dark">
+
+                    Xem lịch
+
+                </a>
+
+            </div>
+
+
+            <div class="card-body">
+
+                @if (!Model.UpcomingSchedules.Any())
+                {
+                    <div class="text-muted">
+                        Chưa có lịch PT sắp tới.
+                    </div>
+                }
+
+
+                @foreach (var schedule
+                          in Model.UpcomingSchedules)
+                {
+                    <div class="border-bottom
+                                pb-3
+                                mb-3">
+
+                        <div class="fw-bold">
+                            @schedule.Customer.FullName
+                        </div>
+
+                        <div class="small text-muted">
+
+                            PT:
+                            @schedule.Pt.FullName
+
+                        </div>
+
+                        <div class="small">
+
+                            @schedule.StartTime.ToString(
+                                "dd/MM/yyyy HH:mm"
+                            )
+
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+@section Scripts
+{
+    <script src="https://cdn.jsdelivr.net/npm/chart.js">
+    </script>
+
+
+    <script>
+
+        const revenueLabels =
+            @Html.Raw(
+                JsonSerializer.Serialize(
+                    Model.MonthlyRevenueLabels
+                )
+            );
+
+
+        const revenueValues =
+            @Html.Raw(
+                JsonSerializer.Serialize(
+                    Model.MonthlyRevenueValues
+                )
+            );
+
+
+        new Chart(
+            document.getElementById(
+                'revenueChart'
+            ),
+            {
+                type: 'bar',
+
+                data: {
+                    labels: revenueLabels,
+
+                    datasets: [
+                        {
+                            label: 'Doanh thu (VNĐ)',
+                            data: revenueValues,
+                            borderWidth: 1
+                        }
+                    ]
+                },
+
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            }
+        );
+
+
+        new Chart(
+            document.getElementById(
+                'bookingChart'
+            ),
+            {
+                type: 'doughnut',
+
+                data: {
+
+                    labels: [
+                        'Pending',
+                        'Confirmed',
+                        'Completed',
+                        'Cancelled'
+                    ],
+
+                    datasets: [
+                        {
+                            data: [
+                                @Model.PendingBookings,
+                                @Model.ConfirmedBookings,
+                                @Model.CompletedBookings,
+                                @Model.CancelledBookings
+                            ]
+                        }
+                    ]
+                },
+
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            }
+        );
+
+    </script>
+}

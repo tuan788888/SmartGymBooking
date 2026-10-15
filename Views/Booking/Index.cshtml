@@ -63,6 +63,14 @@
 
 
             <tbody>
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="5" class="text-center py-5">
+                        <h5>Bạn chưa có lịch đặt</h5>
+                        <p class="text-muted">Chọn một dịch vụ để bắt đầu.</p>
+                        <a asp-action="Create" class="btn btn-smart-success">Đặt lịch</a>
+                    </td></tr>
+                }
 
                 @foreach (var booking in Model)
                 {

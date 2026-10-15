@@ -68,7 +68,7 @@
 
                         <p>
                             <strong>Trạng thái:</strong><br />
-                            @Model.Status
+                            <span class="badge @(Model.Status switch { "PAID" => "bg-success", "PENDING" => "bg-warning text-dark", "FAILED" => "bg-danger", _ => "bg-secondary" })">@Model.Status</span>
                         </p>
 
                     </div>

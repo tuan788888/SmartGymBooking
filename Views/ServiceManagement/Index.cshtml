@@ -58,6 +58,10 @@
             </thead>
 
             <tbody>
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="5" class="text-center text-muted py-4">Chưa có dịch vụ.</td></tr>
+                }
 
                 @foreach (var service in Model)
                 {

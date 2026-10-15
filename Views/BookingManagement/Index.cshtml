@@ -108,6 +108,10 @@
 
 
             <tbody>
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="6" class="text-center text-muted py-4">Không có booking phù hợp.</td></tr>
+                }
 
                 @foreach (var booking in Model)
                 {
@@ -140,7 +144,7 @@
                         </td>
 
                         <td>
-                            @booking.Status
+                            <span class="badge @(booking.Status switch { "COMPLETED" => "bg-success", "PENDING" => "bg-warning text-dark", "CONFIRMED" => "bg-primary", _ => "bg-secondary" })">@booking.Status</span>
                         </td>
 
 

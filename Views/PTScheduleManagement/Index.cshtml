@@ -64,6 +64,10 @@
             </thead>
 
             <tbody>
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="7" class="text-center text-muted py-4">Chưa có lịch PT. Hãy chọn Xếp lịch PT để bắt đầu.</td></tr>
+                }
 
                 @foreach (var schedule in Model)
                 {

@@ -16,7 +16,7 @@
             <dt class="col-sm-4">Giới tính</dt><dd class="col-sm-8">@(Model.Gender switch { "MALE" => "Nam", "FEMALE" => "Nữ", "OTHER" => "Khác", _ => "Chưa cập nhật" })</dd>
             <dt class="col-sm-4">Chức vụ</dt><dd class="col-sm-8">@Model.Position</dd>
             <dt class="col-sm-4">Avatar</dt><dd class="col-sm-8 text-break">@(Model.Avatar ?? "Chưa cập nhật")</dd>
-            <dt class="col-sm-4">Trạng thái tài khoản</dt><dd class="col-sm-8"><span class="badge @(Model.User.IsActive ? "badge-soft-success" : "badge-soft-danger")">@(Model.User.IsActive ? "Hoạt động" : "Đã khóa")</span></dd>
+            <dt class="col-sm-4">Trạng thái tài khoản</dt><dd class="col-sm-8"><span class="badge @(Model.User.IsActive ? "badge-soft-success" : "bg-secondary")">@(Model.User.IsActive ? "Hoạt động" : "Đã khóa")</span></dd>
             <dt class="col-sm-4">Ngày tạo</dt><dd class="col-sm-8">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</dd>
         </dl>
         <form asp-action="ToggleStatus" asp-route-id="@Model.EmployeeId" method="post" class="mt-3">

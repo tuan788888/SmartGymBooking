@@ -136,6 +136,10 @@
 
 
             <tbody>
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="7" class="text-center text-muted py-4">Không có giao dịch phù hợp.</td></tr>
+                }
 
                 @foreach (var payment in Model)
                 {

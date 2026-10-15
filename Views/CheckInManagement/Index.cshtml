@@ -62,6 +62,10 @@
             </thead>
 
             <tbody>
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="5" class="text-center text-muted py-4">Chưa có lịch sử check-in.</td></tr>
+                }
 
                 @foreach (var item in Model)
                 {

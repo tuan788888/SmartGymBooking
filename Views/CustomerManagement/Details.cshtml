@@ -91,7 +91,7 @@
                         }
                         else
                         {
-                            <span class="badge bg-danger">
+                            <span class="badge bg-secondary">
                                 Locked
                             </span>
                         }
@@ -169,7 +169,7 @@
 
             @if (Model.Memberships.Any())
             {
-                <table class="table">
+                <div class="table-responsive"><table class="table">
 
                     <thead>
 
@@ -209,7 +209,7 @@
 
                     </tbody>
 
-                </table>
+                </table></div>
             }
             else
             {

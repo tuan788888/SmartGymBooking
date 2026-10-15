@@ -18,7 +18,7 @@
 
                     <div class="card-body p-4">
 
-                        <span class="badge bg-warning text-dark mb-3">
+                        <span class="badge mb-3 @(Model.Status switch { "PAID" => "bg-success", "PENDING" => "bg-warning text-dark", "FAILED" => "bg-danger", _ => "bg-secondary" })">
                             @Model.Status
                         </span>
 

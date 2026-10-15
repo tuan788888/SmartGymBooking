@@ -14,10 +14,17 @@
 
                 @if (!string.IsNullOrWhiteSpace(Model.Avatar))
                 {
-                    <img src="@Model.Avatar"
+                    <img data-pt-avatar src="@Model.Avatar"
                          class="rounded-circle"
                          style="width:180px;height:180px;object-fit:cover;"
                          alt="@Model.FullName" />
+                }
+                else
+                {
+                    <div class="avatar-circle d-inline-flex align-items-center justify-content-center fs-1"
+                         style="width:180px;height:180px;" role="img" aria-label="@Model.FullName">
+                        @(Model.FullName.Trim().FirstOrDefault())
+                    </div>
                 }
 
             </div>

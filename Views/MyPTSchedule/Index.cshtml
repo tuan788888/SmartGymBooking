@@ -53,10 +53,17 @@
                         @if (!string.IsNullOrWhiteSpace(
                             schedule.Pt.Avatar))
                         {
-                            <img src="@schedule.Pt.Avatar"
+                            <img data-pt-avatar src="@schedule.Pt.Avatar"
                                  class="avatar-circle"
                                  style="width:70px;height:70px;"
                                  alt="@schedule.Pt.FullName" />
+                        }
+                        else
+                        {
+                            <div class="avatar-circle d-inline-flex align-items-center justify-content-center"
+                                 style="width:70px;height:70px;" role="img" aria-label="@schedule.Pt.FullName">
+                                @(schedule.Pt.FullName.Trim().FirstOrDefault())
+                            </div>
                         }
 
 
@@ -104,7 +111,7 @@
 
                         <strong>Trạng thái:</strong>
 
-                        @schedule.Status
+                        <span class="badge @(schedule.Status switch { "COMPLETED" => "bg-success", "SCHEDULED" => "bg-primary", _ => "bg-secondary" })">@schedule.Status</span>
 
                     </p>
 

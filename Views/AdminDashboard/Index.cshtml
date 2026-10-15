@@ -355,6 +355,10 @@
                                     PENDING
                                 </span>
                             }
+                            else if (payment.Status == "FAILED")
+                            {
+                                <span class="badge bg-danger">FAILED</span>
+                            }
                             else
                             {
                                 <span class="badge bg-secondary">
@@ -426,7 +430,7 @@
 
                         @if (!Model.RecentBookings.Any())
                         {
-                            <tr><td colspan="4" class="text-center text-muted py-4">Chưa có booking.</td></tr>
+                            <tr><td colspan="5" class="text-center text-muted py-4">Chưa có booking.</td></tr>
                         }
 
                         @foreach (var booking

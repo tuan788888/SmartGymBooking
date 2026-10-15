@@ -31,7 +31,7 @@
         {
             <tr>
                 <td>@employee.EmployeeId</td><td>@employee.FullName</td><td>@employee.User.Email</td><td>@employee.Phone</td><td>@employee.Position</td>
-                <td><span class="badge @(employee.User.IsActive ? "badge-soft-success" : "badge-soft-danger")">@(employee.User.IsActive ? "Hoạt động" : "Đã khóa")</span></td>
+                <td><span class="badge @(employee.User.IsActive ? "badge-soft-success" : "bg-secondary")">@(employee.User.IsActive ? "Hoạt động" : "Đã khóa")</span></td>
                 <td><div class="d-flex gap-2 flex-wrap">
                     <a asp-action="Details" asp-route-id="@employee.EmployeeId" class="btn btn-sm btn-outline-primary">Chi tiết</a>
                     <a asp-action="Edit" asp-route-id="@employee.EmployeeId" class="btn btn-sm btn-outline-secondary">Sửa</a>

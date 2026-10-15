@@ -90,6 +90,10 @@
             </thead>
 
             <tbody>
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="7" class="text-center text-muted py-4">Không có khách hàng phù hợp.</td></tr>
+                }
 
                 @foreach (var customer in Model)
                 {
@@ -125,7 +129,7 @@
                             }
                             else
                             {
-                                <span class="badge bg-danger">
+                                <span class="badge bg-secondary">
                                     Locked
                                 </span>
                             }

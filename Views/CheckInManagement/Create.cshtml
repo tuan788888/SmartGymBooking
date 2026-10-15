@@ -44,6 +44,10 @@
             </thead>
 
             <tbody>
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="5" class="text-center text-muted py-4">Không có booking đã xác nhận để check-in.</td></tr>
+                }
 
                 @foreach (var booking in Model)
                 {

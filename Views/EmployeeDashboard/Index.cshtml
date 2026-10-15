@@ -1,75 +1,276 @@
+@model SmartGymBooking.ViewModels.EmployeeDashboardViewModel
+
 @{
     ViewData["Title"] = "Employee Dashboard";
 }
 
-<div class="container">
 
-    <div class="mb-4">
+<div class="mb-4">
 
-        <h1>Employee Dashboard</h1>
+    <h2 class="page-title">
+        Dashboard nhân viên
+    </h2>
 
-        <p class="text-muted">
+    <p class="page-subtitle">
+        Hoạt động vận hành SmartGym hôm nay
+    </p>
 
-            Khu vực vận hành SmartGym Booking
+</div>
 
-        </p>
+
+<div class="row g-3 mb-4">
+
+    <div class="col-lg col-md-6">
+
+        <div class="smart-card">
+
+            <div class="card-body">
+
+                <div class="text-muted">
+                    Booking hôm nay
+                </div>
+
+                <h2>
+                    @Model.TodayBookings
+                </h2>
+
+            </div>
+
+        </div>
 
     </div>
 
 
-    <div class="row g-4">
+    <div class="col-lg col-md-6">
 
-        <div class="col-md-4">
+        <div class="smart-card">
 
-            <div class="card shadow-sm">
+            <div class="card-body">
 
-                <div class="card-body">
-
-                    <h5>Booking hôm nay</h5>
-
-                    <p class="display-6">
-                        --
-                    </p>
-
+                <div class="text-muted">
+                    Chờ xác nhận
                 </div>
+
+                <h2>
+                    @Model.PendingBookings
+                </h2>
 
             </div>
 
         </div>
 
+    </div>
 
-        <div class="col-md-4">
 
-            <div class="card shadow-sm">
+    <div class="col-lg col-md-6">
 
-                <div class="card-body">
+        <div class="smart-card">
 
-                    <h5>Check-in hôm nay</h5>
+            <div class="card-body">
 
-                    <p class="display-6">
-                        --
-                    </p>
-
+                <div class="text-muted">
+                    Check-in
                 </div>
+
+                <h2>
+                    @Model.TodayCheckIns
+                </h2>
 
             </div>
 
         </div>
 
+    </div>
 
-        <div class="col-md-4">
 
-            <div class="card shadow-sm">
+    <div class="col-lg col-md-6">
 
-                <div class="card-body">
+        <div class="smart-card">
 
-                    <h5>Lịch PT</h5>
+            <div class="card-body">
 
-                    <p class="display-6">
-                        --
-                    </p>
-
+                <div class="text-muted">
+                    Payment Pending
                 </div>
+
+                <h2>
+                    @Model.PendingPayments
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-lg col-md-6">
+
+        <div class="smart-card">
+
+            <div class="card-body">
+
+                <div class="text-muted">
+                    Lịch PT hôm nay
+                </div>
+
+                <h2>
+                    @Model.TodayPTSchedules
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="row g-4">
+
+    <div class="col-lg-7">
+
+        <div class="smart-card h-100">
+
+            <div class="card-header
+                        d-flex
+                        justify-content-between">
+
+                <h5 class="mb-0">
+                    Booking sắp tới
+                </h5>
+
+                <a asp-controller="BookingManagement"
+                   asp-action="Index"
+                   class="btn btn-sm btn-outline-dark">
+
+                    Quản lý Booking
+
+                </a>
+
+            </div>
+
+
+            <div class="table-responsive">
+
+                <table class="table
+                              align-middle
+                              mb-0">
+
+                    <thead>
+
+                        <tr>
+                            <th>Khách hàng</th>
+                            <th>Dịch vụ</th>
+                            <th>Thời gian</th>
+                            <th>Status</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @if (!Model.UpcomingBookings.Any())
+                        {
+                            <tr><td colspan="4" class="text-center text-muted py-4">Chưa có booking sắp tới.</td></tr>
+                        }
+
+                        @foreach (var booking
+                                  in Model.UpcomingBookings)
+                        {
+                            <tr>
+
+                                <td>
+                                    @booking.Customer.FullName
+                                </td>
+
+                                <td>
+                                    @booking.Service.Name
+                                </td>
+
+                                <td>
+                                    @booking.StartTime.ToString(
+                                        "dd/MM HH:mm"
+                                    )
+                                </td>
+
+                                <td>
+                                    @booking.Status
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-lg-5">
+
+        <div class="smart-card h-100">
+
+            <div class="card-header
+                        d-flex
+                        justify-content-between">
+
+                <h5 class="mb-0">
+                    Payment chờ xác nhận
+                </h5>
+
+                <a asp-controller="PaymentManagement"
+                   asp-action="Index"
+                   class="btn btn-sm btn-outline-dark">
+
+                    Xử lý
+
+                </a>
+
+            </div>
+
+
+            <div class="card-body">
+
+                @if (!Model.PendingPaymentList.Any())
+                {
+                    <div class="text-muted">
+                        Không có giao dịch đang chờ.
+                    </div>
+                }
+
+
+                @foreach (var payment
+                          in Model.PendingPaymentList)
+                {
+                    <div class="border-bottom
+                                pb-3
+                                mb-3">
+
+                        <strong>
+                            @payment.Customer.FullName
+                        </strong>
+
+                        <div>
+                            @payment.Package.Name
+                        </div>
+
+                        <div class="fw-bold mt-1">
+                            @payment.Amount.ToString("N0") đ
+                        </div>
+
+                        <small class="text-muted">
+                            @payment.PaymentCode
+                        </small>
+
+                    </div>
+                }
 
             </div>
 

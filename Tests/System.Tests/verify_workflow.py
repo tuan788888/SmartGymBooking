@@ -1,4 +1,4 @@
-﻿import base64,datetime,html,http.cookiejar,json,re,subprocess,urllib.parse,urllib.request,urllib.error,uuid
+import base64,datetime,html,http.cookiejar,json,re,subprocess,urllib.parse,urllib.request,urllib.error,uuid
 from pathlib import Path
 BASE='http://127.0.0.1:5187'
 TAG='B33QA'+datetime.datetime.now().strftime('%Y%m%d%H%M%S')
@@ -118,4 +118,3 @@ admin.request('/ExerciseManagement');admin.post('/ExerciseManagement/DeleteConfi
 admin.post('/PTManagement/ToggleStatus/'+str(ptid));admin.post('/PackageManagement/ToggleStatus/'+str(pid));admin.post('/ServiceManagement/ToggleStatus/'+str(sid))
 Path('obj/b33-qa-tag.txt').write_text(TAG)
 print('ALL WORKFLOW CHECKS PASSED: '+TAG,flush=True)
-

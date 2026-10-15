@@ -1,4 +1,4 @@
-﻿from pathlib import Path
+from pathlib import Path
 scope={};source=Path('Tests/System.Tests/verify_workflow.py').read_text(encoding='utf-8-sig');exec(source[:source.index('admin=Client()')],scope)
 Client=scope['Client'];check=scope['check']
 admin=Client();admin.login('admin@smartgym.vn','Admin@123')
@@ -17,4 +17,3 @@ for path in ['/Auth/Login','/Auth/Register']:
 for path in ['/Workout/Generate','/Payment/Cancel','/Booking/Cancel','/AIChat/Send']:
     customer.request(path);assert customer.code in (404,405),(path,customer.code)
 print('PASS: '+str(count)+' unsafe actions reject missing antiforgery token; customer mutation GETs return 404/405.')
-

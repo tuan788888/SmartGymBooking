@@ -15,7 +15,6 @@ appsettings.Development.json
 
 MachineLearning/models/*.pkl
 MachineLearning/models/*.joblib
-MachineLearning/models/*.onnx
 
 __pycache__/
 *.pyc

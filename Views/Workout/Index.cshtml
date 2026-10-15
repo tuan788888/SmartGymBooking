@@ -4,7 +4,8 @@
     ViewData["Title"] = "Giáo án của tôi";
 }
 
-<div class="mb-4">
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
 
     <h2 class="page-title">
         Giáo án của tôi
@@ -14,7 +15,21 @@
         Giáo án tập luyện cá nhân hóa của SmartGym
     </p>
 
+    </div>
+    <form asp-action="Generate" method="post">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn btn-smart-success">Tạo giáo án bằng AI</button>
+    </form>
 </div>
+
+@if (TempData["SuccessMessage"] is string success)
+{
+    <div class="alert alert-success" role="status">@success</div>
+}
+@if (TempData["ErrorMessage"] is string error)
+{
+    <div class="alert alert-danger" role="alert">@error</div>
+}
 
 
 @if (!Model.Any())

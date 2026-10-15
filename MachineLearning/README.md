@@ -25,7 +25,9 @@ Each input has shape `[batch, 1]`. Gender, FitnessGoal, ExperienceLevel and Acti
 
 `IWorkoutRecommendationService.PredictPlanTypeAsync(Customer)` returns a PlanType. The singleton owns one reusable ONNX session and DI disposes it at shutdown. Missing birth date, nonpositive height/weight, incomplete training profile and invalid scheduling preferences raise validation errors. Missing preferences default to 3 sessions and 60 minutes. Missing gender becomes OTHER, handled as an unseen category by the encoder.
 
-This step supplies the prediction service; attaching predictions to workout templates or UI is a separate application workflow.
+Customers can POST `/Workout/Generate` from the workout list. The controller uses actual ONNX prediction, then the scoped generator selects active exercises by experience level and daily muscle groups. Plans store Title, Goal, ExperienceLevel, SessionsPerWeek, CreatedByAi and model metadata. Reps is an integer in the existing schema: a target is stored in Reps and the suggested range in Note. OrderNumber is unique within each day. No schema migration is needed.
+
+The plan and exercise graph is saved atomically in a serializable transaction. Only one AI plan per customer per calendar day (application server local time) is allowed, including concurrent submissions. Manual plans do not consume this limit. An empty active exercise library produces a user-visible error without saving a plan. Details retain ownership checks and existing exercise video links.
 
 ## Evaluation limits
 

@@ -16,6 +16,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 );
 
 builder.Services.AddSingleton<IWorkoutRecommendationService, WorkoutRecommendationService>();
+builder.Services.AddScoped<IWorkoutPlanGeneratorService, WorkoutPlanGeneratorService>();
 
 // Password hashing
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();

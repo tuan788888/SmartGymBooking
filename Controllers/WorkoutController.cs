@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SmartGymBooking.Data;
+using SmartGymBooking.Services;
 
 namespace SmartGymBooking.Controllers
 {
@@ -10,11 +11,20 @@ namespace SmartGymBooking.Controllers
     public class WorkoutController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IWorkoutRecommendationService _recommendationService;
+        private readonly IWorkoutPlanGeneratorService _generatorService;
+        private readonly ILogger<WorkoutController> _logger;
 
         public WorkoutController(
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            IWorkoutRecommendationService recommendationService,
+            IWorkoutPlanGeneratorService generatorService,
+            ILogger<WorkoutController> logger)
         {
             _context = context;
+            _recommendationService = recommendationService;
+            _generatorService = generatorService;
+            _logger = logger;
         }
 
 
@@ -66,6 +76,40 @@ namespace SmartGymBooking.Controllers
             return View(plans);
         }
 
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Generate()
+        {
+            var customerId = await GetCustomerIdAsync();
+            if (customerId == null) return Unauthorized();
+            var customer = await _context.Customers.FindAsync(customerId.Value);
+            if (customer == null) return NotFound();
+
+            try
+            {
+                var today = DateTime.Today;
+                var tomorrow = today.AddDays(1);
+                if (await _context.WorkoutPlans.AnyAsync(p => p.CustomerId == customer.CustomerId
+                    && p.CreatedByAi && p.CreatedAt >= today && p.CreatedAt < tomorrow))
+                    throw new InvalidOperationException(WorkoutPlanGeneratorService.DailyLimitMessage);
+
+                var planType = await _recommendationService.PredictPlanTypeAsync(customer);
+                var plan = await _generatorService.GenerateAsync(customer, planType);
+                TempData["SuccessMessage"] = $"AI đã tạo giáo án: {planType}";
+                return RedirectToAction(nameof(Details), new { id = plan.WorkoutPlanId });
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to generate workout plan for customer {CustomerId}", customerId);
+                TempData["ErrorMessage"] = "Không thể tạo giáo án lúc này. Vui lòng thử lại sau.";
+            }
+            return RedirectToAction(nameof(Index));
+        }
 
         // =====================================
         // PLAN DETAILS

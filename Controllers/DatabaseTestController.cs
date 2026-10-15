@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using SmartGymBooking.Data;
 
 namespace SmartGymBooking.Controllers
 {
+    [Authorize(Roles = "ADMIN")]
     public class DatabaseTestController : Controller
     {
         private readonly ApplicationDbContext _context;

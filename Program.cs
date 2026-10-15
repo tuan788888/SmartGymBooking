@@ -1,4 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SmartGymBooking.Data;
@@ -7,7 +10,8 @@ using SmartGymBooking.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
@@ -33,6 +37,22 @@ builder.Services
         options.AccessDeniedPath = "/Auth/AccessDenied";
 
         options.Cookie.Name = "SmartGymBooking.Auth";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+
+        // Account locks and role changes also revoke previously issued cookies.
+        options.Events.OnValidatePrincipal = async context =>
+        {
+            var validId = long.TryParse(context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier), out var userId);
+            var db = context.HttpContext.RequestServices.GetRequiredService<ApplicationDbContext>();
+            var account = validId ? await db.Users.AsNoTracking().SingleOrDefaultAsync(u => u.UserId == userId) : null;
+            if (account == null || !account.IsActive || account.Role != context.Principal?.FindFirstValue(ClaimTypes.Role))
+            {
+                context.RejectPrincipal();
+                await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            }
+        };
 
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
 
@@ -45,9 +65,15 @@ var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+    app.UseExceptionHandler("/Error/ServerError");
     app.UseHsts();
 }
+else
+{
+    app.UseDeveloperExceptionPage();
+}
+
+app.UseStatusCodePagesWithReExecute("/Error/StatusCode/{0}");
 
 app.UseHttpsRedirection();
 
@@ -69,5 +95,12 @@ app.MapControllerRoute(
 
 // Hash password seed cũ
 await DbInitializer.InitializeAsync(app.Services);
+
+app.MapGet("/health", () => Results.Ok(new
+{
+    status = "Healthy",
+    application = "SmartGymBooking",
+    time = DateTime.UtcNow
+})).AllowAnonymous();
 
 app.Run();

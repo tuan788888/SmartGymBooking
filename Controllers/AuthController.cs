@@ -58,21 +58,11 @@ namespace SmartGymBooking.Controllers
             var user = await _context.Users
                 .FirstOrDefaultAsync(u => u.Email.ToLower() == email);
 
-            if (user == null)
+            if (user == null || !user.IsActive)
             {
                 ModelState.AddModelError(
                     string.Empty,
                     "Email hoặc mật khẩu không chính xác."
-                );
-
-                return View(model);
-            }
-
-            if (!user.IsActive)
-            {
-                ModelState.AddModelError(
-                    string.Empty,
-                    "Tài khoản đã bị khóa."
                 );
 
                 return View(model);
@@ -303,7 +293,8 @@ namespace SmartGymBooking.Controllers
         [HttpGet]
         public IActionResult AccessDenied()
         {
-            return View();
+            Response.StatusCode = 403;
+            return View("~/Views/Error/AccessDenied.cshtml");
         }
 
 

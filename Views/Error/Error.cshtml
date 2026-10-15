@@ -1,0 +1,12 @@
+@{
+    ViewData["Title"] = "Có lỗi xảy ra";
+    var code = ViewData["StatusCode"] as int? ?? 500;
+}
+<div class="row justify-content-center"><div class="col-lg-7">
+    <div class="smart-card"><div class="card-body text-center py-5">
+        <div class="display-1 fw-bold">@code</div>
+        <h3 class="mt-3">@(code >= 500 ? "Hệ thống gặp sự cố" : "Không thể xử lý yêu cầu")</h3>
+        <p class="text-muted">Không thể xử lý yêu cầu lúc này. Vui lòng thử lại sau.</p>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-smart-primary">Về trang chủ</a>
+    </div></div>
+</div></div>

@@ -20,6 +20,7 @@ namespace SmartGymBooking.ViewModels
         public string? Phone { get; set; }
 
         [DataType(DataType.Date)]
+        [PastDate]
         public DateOnly? DateOfBirth { get; set; }
 
         [RegularExpression("^(MALE|FEMALE|OTHER)$", ErrorMessage = "Giới tính không hợp lệ.")]

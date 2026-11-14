@@ -1,254 +1,160 @@
+@{
+    var signedIn = User.Identity?.IsAuthenticated == true;
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "Home";
+    var role = User.IsInRole("ADMIN") ? "Quản trị viên" : User.IsInRole("EMPLOYEE") ? "Nhân viên" : "Thành viên";
+    var pageTitle = ViewData["Title"]?.ToString() ?? "SmartGym";
+    var email = User.Identity?.Name ?? "";
+    var initial = string.IsNullOrWhiteSpace(email) ? "S" : email[..1].ToUpperInvariant();
+    var quickController = User.IsInRole("CUSTOMER") ? "Booking" : "CheckInManagement";
+    var quickLabel = User.IsInRole("CUSTOMER") ? "Đặt lịch tập" : "Check-in khách hàng";
+    var aiCustomer = BuildFeatures.AIEnabled && User.IsInRole("CUSTOMER");
+    var nav = new List<(string Controller, string Action, string Label, string Icon, string Group)>();
+    if (User.IsInRole("ADMIN"))
+    {
+        nav.AddRange(new[] {
+            ("AdminDashboard", "Index", "Tổng quan", "grid", "KHÔNG GIAN QUẢN LÝ"),
+            ("BookingManagement", "Index", "Đặt lịch", "calendar", "VẬN HÀNH"),
+            ("CheckInManagement", "Index", "Check-in", "check", "VẬN HÀNH"),
+            ("PTScheduleManagement", "Index", "Lịch huấn luyện viên", "clock", "VẬN HÀNH"),
+            ("PaymentManagement", "Index", "Thanh toán", "wallet", "VẬN HÀNH"),
+            ("CustomerManagement", "Index", "Khách hàng", "users", "QUẢN LÝ"),
+            ("EmployeeManagement", "Index", "Nhân viên", "shield", "QUẢN LÝ"),
+            ("PTManagement", "Index", "Huấn luyện viên", "user", "QUẢN LÝ"),
+            ("PackageManagement", "Index", "Gói tập", "layers", "QUẢN LÝ"),
+            ("ServiceManagement", "Index", "Dịch vụ", "dumbbell", "QUẢN LÝ"),
+            ("ExerciseManagement", "Index", "Thư viện bài tập", "book", "QUẢN LÝ")
+        });
+    }
+    else if (User.IsInRole("EMPLOYEE"))
+    {
+        nav.AddRange(new[] {
+            ("EmployeeDashboard", "Index", "Tổng quan", "grid", "KHÔNG GIAN NHÂN VIÊN"),
+            ("BookingManagement", "Index", "Đặt lịch", "calendar", "VẬN HÀNH"),
+            ("CheckInManagement", "Index", "Check-in", "check", "VẬN HÀNH"),
+            ("PTScheduleManagement", "Index", "Lịch huấn luyện viên", "clock", "VẬN HÀNH"),
+            ("PaymentManagement", "Index", "Thanh toán", "wallet", "VẬN HÀNH"),
+            ("CustomerManagement", "Index", "Khách hàng", "users", "DANH MỤC"),
+            ("Package", "Index", "Gói tập", "layers", "DANH MỤC")
+        });
+    }
+    else
+    {
+        nav.AddRange(new[] {
+            ("Home", "Index", "Trang chủ", "home", "KHÔNG GIAN CỦA BẠN"),
+            ("Booking", "Index", "Lịch tập của tôi", "calendar", "TẬP LUYỆN"),
+            ("Workout", "Index", "Giáo án của tôi", "dumbbell", "TẬP LUYỆN"),
+            ("MyPTSchedule", "Index", "Huấn luyện viên", "user", "TẬP LUYỆN"),
+            ("AIChat", "Index", "AI Virtual PT", "sparkles", "TẬP LUYỆN"),
+            ("Membership", "Index", "Thẻ thành viên", "shield", "THÀNH VIÊN"),
+            ("Package", "Index", "Khám phá gói tập", "layers", "THÀNH VIÊN"),
+            ("Payment", "History", "Lịch sử thanh toán", "wallet", "THÀNH VIÊN")
+        });
+    }
+    if (!BuildFeatures.AIEnabled)
+    {
+        nav.RemoveAll(item => item.Controller is "AIChat" or "Workout");
+    }
+}
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0" />
-
-    <title>@ViewData["Title"] - SmartGym</title>
-
-    <link rel="stylesheet"
-          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-
-    <link rel="stylesheet"
-          href="~/css/site.css"
-          asp-append-version="true" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#102721" />
+    <title>@pageTitle - SmartGym</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/custom.css" asp-append-version="true" />
 </head>
-
-<body>
-
-<header>
-    <nav class="navbar navbar-expand-lg smartgym-navbar">
-
-        <div class="container">
-
-            <a class="smartgym-brand"
-               asp-controller="Home"
-               asp-action="Index">
-                SMART<span>GYM</span>
+<body class="@(signedIn ? "member-layout" : "public-layout")">
+<a class="skip-link" href="#mainContent">Chuyển đến nội dung</a>
+@if (signedIn)
+{
+    <aside class="offcanvas-lg offcanvas-start app-sidebar" tabindex="-1" id="appSidebar" aria-labelledby="sidebarLabel">
+        <div class="sidebar-brand-row">
+            <a class="sg-brand" asp-controller="Home" asp-action="Index" id="sidebarLabel">
+                <span class="brand-symbol"><partial name="_Icon" model='@("dumbbell")' /></span>
+                <span>SMART<span class="brand-accent">GYM</span><small>FITNESS & WELLNESS</small></span>
             </a>
-
-            <button class="navbar-toggler navbar-dark"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#mainNavbar"
-                    aria-controls="mainNavbar"
-                    aria-expanded="false"
-                    aria-label="Mở menu điều hướng">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse"
-                 id="mainNavbar">
-
-                <ul class="navbar-nav me-auto">
-
-                    @if (User.IsInRole("ADMIN"))
-                    {
-                        <li class="nav-item"><a class="nav-link" asp-controller="ExerciseManagement" asp-action="Index">Bài tập</a></li>
-<li class="nav-item"><a class="nav-link" asp-controller="PTScheduleManagement" asp-action="Index">Lịch PT</a></li><li class="nav-item"><a class="nav-link" asp-controller="CheckInManagement" asp-action="Index">Check-in</a></li>
-<li class="nav-item"><a class="nav-link" asp-controller="ServiceManagement" asp-action="Index">Dịch vụ</a></li><li class="nav-item"><a class="nav-link" asp-controller="BookingManagement" asp-action="Index">Booking</a></li>
-<li class="nav-item"><a class="nav-link" asp-controller="PaymentManagement" asp-action="Index">Thanh toán</a></li>
-<li class="nav-item">
-                            <a class="nav-link"
-                               asp-controller="AdminDashboard"
-                               asp-action="Index">
-                                Dashboard
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link"
-                               asp-controller="CustomerManagement"
-                               asp-action="Index">
-                                Khách hàng
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link"
-                               asp-controller="EmployeeManagement"
-                               asp-action="Index">
-                                Nhân viên
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="PTManagement" asp-action="Index">
-                                PT
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="PackageManagement" asp-action="Index">
-                                Gói tập
-                            </a>
-                        </li>
-                    }
-
-                    else if (User.IsInRole("EMPLOYEE"))
-                    {
-                        <li class="nav-item"><a class="nav-link" asp-controller="PTScheduleManagement" asp-action="Index">Lịch PT</a></li>
-<li class="nav-item"><a class="nav-link" asp-controller="PaymentManagement" asp-action="Index">Thanh toán</a></li>
-<li class="nav-item"><a class="nav-link" asp-controller="Package" asp-action="Index">Gói tập</a></li>
-<li class="nav-item">
-                            <a class="nav-link"
-                               asp-controller="EmployeeDashboard"
-                               asp-action="Index">
-                                Dashboard
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link"
-                               asp-controller="CustomerManagement"
-                               asp-action="Index">
-                                Khách hàng
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="BookingManagement" asp-action="Index">
-                                Booking
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="CheckInManagement" asp-action="Index">
-                                Check-in
-                            </a>
-                        </li>
-                    }
-
-                    else
-                    {
-                        <li class="nav-item">
-                            <a class="nav-link"
-                               asp-controller="Home"
-                               asp-action="Index">
-                                Trang chủ
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Package" asp-action="Index">
-                                Gói tập
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                Dịch vụ
-                            </a>
-                        </li>
-
-                        @if (User.IsInRole("CUSTOMER"))
-                        {
-                            <li class="nav-item"><a class="nav-link" asp-controller="Workout" asp-action="Index">Giáo án</a></li>
-<li class="nav-item"><a class="nav-link" asp-controller="MyPTSchedule" asp-action="Index">PT của tôi</a></li>
-<li class="nav-item"><a class="nav-link" asp-controller="Payment" asp-action="History">Thanh toán của tôi</a></li><li class="nav-item"><a class="nav-link" asp-controller="Membership" asp-action="Index">Membership</a></li>
-<li class="nav-item">
-                                <a class="nav-link" asp-controller="Booking" asp-action="Index">
-                                    Lịch của tôi
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="AIChat" asp-action="Index">
-                                    AI PT
-                                </a>
-                            </li>
-                        }
-                    }
-
-                </ul>
-
-                <ul class="navbar-nav ms-auto align-items-lg-center">
-
-                    @if (User.Identity?.IsAuthenticated == true)
-                    {
-                        <li class="nav-item me-lg-3">
-                            <span class="nav-link">
-                                @User.Identity.Name
-                            </span>
-                        </li>
-
-                        <li class="nav-item">
-                            <form asp-controller="Auth"
-                                  asp-action="Logout"
-                                  method="post">
-
-                                @Html.AntiForgeryToken()
-
-                                <button class="btn btn-outline-light">
-                                    Đăng xuất
-                                </button>
-
-                            </form>
-                        </li>
-                    }
-                    else
-                    {
-                        <li class="nav-item">
-                            <a class="nav-link"
-                               asp-controller="Auth"
-                               asp-action="Login">
-                                Đăng nhập
-                            </a>
-                        </li>
-
-                        <li class="nav-item ms-lg-2">
-                            <a class="btn btn-success"
-                               asp-controller="Auth"
-                               asp-action="Register">
-                                Đăng ký
-                            </a>
-                        </li>
-                    }
-
-                </ul>
-
-            </div>
-
+            <button type="button" class="btn-close btn-close-white d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#appSidebar" aria-label="Đóng menu"></button>
         </div>
-
-    </nav>
-</header>
-
-
-<main class="container page-shell">
-    @RenderBody()
-</main>
-
-
-<footer class="smart-footer mt-auto">
-    <div class="container py-4">
-        <div class="row">
-            <div class="col-md-6">
-                <strong>SmartGym Booking</strong>
-                <div class="small text-muted">Hệ thống đặt lịch và quản lý phòng tập tích hợp AI Virtual PT</div>
-            </div>
-            <div class="col-md-6 text-md-end mt-3 mt-md-0">
-                <small class="text-muted">© @DateTime.Now.Year SmartGym</small>
-            </div>
+        <div class="sidebar-scroll">
+            <nav aria-label="Điều hướng chính">
+                @foreach (var group in nav.GroupBy(item => item.Group))
+                {
+                    <div class="sidebar-group-label">@group.Key</div>
+                    @foreach (var item in group)
+                    {
+                        var active = controller.Equals(item.Controller, StringComparison.OrdinalIgnoreCase);
+                        <a class="sidebar-link @(active ? "is-active" : "")" asp-controller="@item.Controller" asp-action="@item.Action" aria-current="@(active ? "page" : null)">
+                            <partial name="_Icon" model="item.Icon" /><span>@item.Label</span>
+                            @if (item.Controller == "AIChat") { <span class="nav-ai-tag">AI</span> }
+                        </a>
+                    }
+                }
+            </nav>
+            <a class="sidebar-promo" asp-controller="@(aiCustomer ? "AIChat" : User.IsInRole("CUSTOMER") ? "Booking" : "Home")" asp-action="Index">
+                <span class="promo-symbol"><partial name="_Icon" model='@("sparkles")' /></span>
+                <strong>@(User.IsInRole("CUSTOMER") ? "Đồng hành cùng bạn" : "Mỗi ngày một bước tiến")</strong>
+                <span>@(aiCustomer ? "Hiểu giáo án của bạn cùng AI Virtual PT." : "Cùng xây dựng trải nghiệm tập luyện tốt hơn.")</span>
+                <span class="promo-link">@(aiCustomer ? "Trò chuyện với AI PT" : User.IsInRole("CUSTOMER") ? "Xem lịch tập của bạn" : "Khám phá SmartGym") <partial name="_Icon" model='@("arrow")' /></span>
+            </a>
         </div>
-    </div>
-</footer>
-
-
+        <div class="sidebar-bottom"><span class="status-dot"></span> SmartGym Booking <span class="ms-auto">@DateTime.Now.Year</span></div>
+    </aside>
+}
+<div class="@(signedIn ? "app-workspace" : "public-workspace")">
+    @if (signedIn)
+    {
+        <header class="app-topbar">
+            <div class="topbar-heading">
+                <button class="icon-button d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#appSidebar" aria-controls="appSidebar" aria-label="Mở menu điều hướng"><partial name="_Icon" model='@("menu")' /></button>
+                <div><span class="topbar-eyebrow">SMARTGYM / @role.ToUpperInvariant()</span><div class="topbar-title">@pageTitle</div></div>
+            </div>
+            <div class="topbar-actions">
+                <a asp-controller="@quickController" asp-action="Create" class="btn btn-smart-success topbar-quick" aria-label="@quickLabel"><partial name="_Icon" model='@("plus")' /><span>@quickLabel</span></a>
+                <div class="dropdown account-dropdown">
+                    <button class="account-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mở menu tài khoản">
+                        <span class="account-avatar">@initial</span><span class="account-text"><strong>@email</strong><small>@role</small></span><partial name="_Icon" model='@("chevron")' />
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end account-menu">
+                        <div class="account-menu-info"><strong>@role</strong><span>@email</span></div>
+                        <form asp-controller="Auth" asp-action="Logout" method="post"><button type="submit" class="dropdown-item"><partial name="_Icon" model='@("logout")' /> Đăng xuất</button></form>
+                    </div>
+                </div>
+            </div>
+        </header>
+    }
+    else
+    {
+        <header class="public-header">
+            <nav class="navbar navbar-expand-lg container" aria-label="Điều hướng chính">
+                <a class="sg-brand" asp-controller="Home" asp-action="Index"><span class="brand-symbol"><partial name="_Icon" model='@("dumbbell")' /></span><span>SMART<span class="brand-accent">GYM</span></span></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#publicNav" aria-controls="publicNav" aria-expanded="false" aria-label="Mở menu điều hướng"><partial name="_Icon" model='@("menu")' /></button>
+                <div class="collapse navbar-collapse" id="publicNav">
+                    <div class="navbar-nav mx-auto">
+                        <a class="nav-link @(controller == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index">Trang chủ</a>
+                        <a class="nav-link @(controller == "Package" ? "active" : "")" asp-controller="Package" asp-action="Index">Gói tập</a>
+                        <a class="nav-link" asp-controller="Home" asp-action="Index" asp-fragment="services">Trải nghiệm tập luyện</a>
+                    </div>
+                    <div class="public-auth"><a class="btn btn-quiet" asp-controller="Auth" asp-action="Login">Đăng nhập</a><a class="btn btn-smart-success" asp-controller="Auth" asp-action="Register">Bắt đầu ngay <partial name="_Icon" model='@("arrow")' /></a></div>
+                </div>
+            </nav>
+        </header>
+    }
+    <main id="mainContent" class="page-shell @(signedIn ? "workspace-content" : "container public-content") @(controller == "Home" ? "home-content" : "")">
+        @RenderBody()
+    </main>
+    <footer class="smart-footer">
+        <div class="footer-inner">
+            <div><strong>SMART<span>GYM</span></strong><span class="footer-description">Tập luyện thông minh. Sống trọn năng lượng.</span></div>
+            <small>© @DateTime.Now.Year SmartGym Booking <span class="footer-dot">·</span> Mỗi ngày một phiên bản tốt hơn.</small>
+        </div>
+    </footer>
+</div>
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
-
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-
-<script src="~/js/site.js"
-        asp-append-version="true"></script>
-
-@await RenderSectionAsync(
-    "Scripts",
-    required: false
-)
-
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
 </body>
-
 </html>

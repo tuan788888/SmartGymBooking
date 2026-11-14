@@ -4,17 +4,17 @@
     ViewData["Title"] = "Đăng ký";
 }
 
-<div class="container mt-5">
+<div class="auth-shell"><aside class="auth-story"><span class="section-eyebrow">BẮT ĐẦU CÙNG SMARTGYM</span><h1>Một khởi đầu.<br /><em>Nhiều thay đổi.</em></h1><p>Tạo tài khoản để chọn gói tập, đặt lịch linh hoạt và xây dựng thói quen cho riêng bạn.</p><a asp-controller="Package" asp-action="Index">Tìm gói tập phù hợp ↗</a></aside>
 
-    <div class="row justify-content-center">
+    <div class="row justify-content-center auth-form-row">
 
-        <div class="col-md-6">
+        <div class="col-12">
 
-            <div class="card shadow-sm">
+            <div class="card auth-panel">
 
-                <div class="card-body p-4">
+                <div class="card-body auth-panel-body">
 
-                    <h2 class="text-center mb-4">
+                    <h2 class="auth-title">
                         Đăng ký SmartGym
                     </h2>
 
@@ -37,7 +37,7 @@
                                 Họ và tên
                             </label>
 
-                            <input asp-for="FullName"
+                            <input asp-for="FullName" autocomplete="name"
                                    class="form-control" />
 
                             <span asp-validation-for="FullName"
@@ -54,7 +54,7 @@
                                 Email
                             </label>
 
-                            <input asp-for="Email"
+                            <input asp-for="Email" type="email" autocomplete="email"
                                    class="form-control" />
 
                             <span asp-validation-for="Email"
@@ -71,7 +71,7 @@
                                 Số điện thoại
                             </label>
 
-                            <input asp-for="Phone"
+                            <input asp-for="Phone" type="tel" autocomplete="tel"
                                    class="form-control" />
 
                             <span asp-validation-for="Phone"
@@ -121,7 +121,7 @@
                                     Khác
                                 </option>
 
-                            </select>
+                            </select><span asp-validation-for="Gender" class="text-danger"></span>
 
                         </div>
 
@@ -133,7 +133,7 @@
                                 Mật khẩu
                             </label>
 
-                            <input asp-for="Password"
+                            <input asp-for="Password" autocomplete="new-password"
                                    class="form-control" />
 
                             <span asp-validation-for="Password"
@@ -150,7 +150,7 @@
                                 Xác nhận mật khẩu
                             </label>
 
-                            <input asp-for="ConfirmPassword"
+                            <input asp-for="ConfirmPassword" autocomplete="new-password"
                                    class="form-control" />
 
                             <span asp-validation-for="ConfirmPassword"
@@ -161,7 +161,7 @@
 
 
                         <button type="submit"
-                                class="btn btn-dark w-100">
+                                class="btn btn-smart-success w-100">
 
                             Đăng ký
 
@@ -170,7 +170,7 @@
                     </form>
 
 
-                    <div class="text-center mt-3">
+                    <div class="text-center auth-switch">
 
                         Đã có tài khoản?
 

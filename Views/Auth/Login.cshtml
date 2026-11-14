@@ -4,17 +4,17 @@
     ViewData["Title"] = "Đăng nhập";
 }
 
-<div class="container mt-5">
+<div class="auth-shell"><aside class="auth-story"><span class="section-eyebrow">CHÀO MỪNG TRỞ LẠI</span><h1>Giữ nhịp tập.<br /><em>Tiếp đà tiến bộ.</em></h1><p>Lịch tập, gói thành viên và huấn luyện viên của bạn, trong một không gian.</p><a asp-controller="Package" asp-action="Index">Khám phá gói tập ↗</a></aside>
 
-    <div class="row justify-content-center">
+    <div class="row justify-content-center auth-form-row">
 
-        <div class="col-md-5">
+        <div class="col-12">
 
-            <div class="card shadow-sm">
+            <div class="card auth-panel">
 
-                <div class="card-body p-4">
+                <div class="card-body auth-panel-body">
 
-                    <h2 class="text-center mb-4">
+                    <h2 class="auth-title">
                         Đăng nhập SmartGym
                     </h2>
 
@@ -43,7 +43,7 @@
 
                             <input asp-for="Email"
                                    class="form-control"
-                                   placeholder="example@gmail.com" />
+                                   type="email" autocomplete="username" placeholder="ban@example.com" />
 
                             <span asp-validation-for="Email"
                                   class="text-danger">
@@ -61,7 +61,7 @@
 
                             <input asp-for="Password"
                                    class="form-control"
-                                   placeholder="Nhập mật khẩu" />
+                                   autocomplete="current-password" placeholder="Nhập mật khẩu" />
 
                             <span asp-validation-for="Password"
                                   class="text-danger">
@@ -84,7 +84,7 @@
 
 
                         <button type="submit"
-                                class="btn btn-dark w-100">
+                                class="btn btn-smart-success w-100">
 
                             Đăng nhập
 
@@ -93,7 +93,7 @@
                     </form>
 
 
-                    <div class="text-center mt-3">
+                    <div class="text-center auth-switch">
 
                         Chưa có tài khoản?
 

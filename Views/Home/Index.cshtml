@@ -1,107 +1,65 @@
 @{
     ViewData["Title"] = "Trang chủ";
+    var customer = User.IsInRole("CUSTOMER");
+    var staff = User.IsInRole("ADMIN") || User.IsInRole("EMPLOYEE");
+    var primaryController = customer ? "Booking" : staff ? (User.IsInRole("ADMIN") ? "AdminDashboard" : "EmployeeDashboard") : "Auth";
+    var primaryAction = customer ? "Create" : staff ? "Index" : "Register";
+    var primaryLabel = customer ? "Đặt lịch tập ngay" : staff ? "Vào trang quản lý" : "Bắt đầu hành trình";
 }
-
-<section class="hero-section">
-
-    <span class="hero-badge">
-        Smart Fitness Platform
-    </span>
-
-    <h1>
-        Tập luyện thông minh hơn cùng SmartGym
-    </h1>
-
-    <p class="mt-3">
-        Quản lý gói tập, đặt lịch dịch vụ, theo dõi lịch PT
-        và nhận giáo án cá nhân hóa từ AI Virtual Trainer.
-    </p>
-
-    @if (User.Identity?.IsAuthenticated != true)
-    {
-        <div class="mt-4">
-
-            <a asp-controller="Auth"
-               asp-action="Register"
-               class="btn btn-success btn-lg me-2">
-
-                Bắt đầu ngay
-
-            </a>
-
-            <a asp-controller="Auth"
-               asp-action="Login"
-               class="btn btn-outline-light btn-lg">
-
-                Đăng nhập
-
-            </a>
-
+<div class="home-intro"><span class="section-eyebrow"><span class="status-dot"></span> KHÔNG GIAN CHO MỘT KHỞI ĐẦU MỚI</span><span class="home-intro-note">Kỷ luật hôm nay. Khác biệt ngày mai.</span></div>
+<section class="gym-hero" aria-labelledby="heroTitle">
+    <img class="gym-hero-image" src="~/images/banners/gym-hero.jpg" asp-append-version="true" alt="Không gian phòng gym hiện đại với khu tập tạ và ánh sáng tự nhiên" fetchpriority="high" />
+    <div class="gym-hero-shade"></div>
+    <div class="gym-hero-content">
+        <span class="hero-overline"><span></span> SMART TRAINING. REAL PROGRESS.</span>
+        <h1 id="heroTitle">Tốt hơn<br />mỗi <em>ngày.</em></h1>
+        <p>Mỗi buổi tập là một bước tiến. Khám phá gói tập, kết nối huấn luyện viên và xây dựng lộ trình của riêng bạn.</p>
+        <div class="hero-actions">
+            <a asp-controller="@primaryController" asp-action="@primaryAction" class="btn btn-smart-success btn-hero">@primaryLabel <partial name="_Icon" model='@("arrow")' /></a>
+            <a asp-controller="Package" asp-action="Index" class="hero-secondary">Khám phá gói tập <partial name="_Icon" model='@("arrow")' /></a>
         </div>
-    }
-
+        <div class="hero-trust"><span><partial name="_Icon" model='@("check")' /> Lịch tập linh hoạt</span><span><partial name="_Icon" model='@("check")' /> Lộ trình dành riêng cho bạn</span></div>
+    </div>
+    <div class="hero-corner"><span class="hero-corner-icon"><partial name="_Icon" model='@("dumbbell")' /></span><div><small>YOUR SPACE. YOUR PACE.</small><strong>Sẵn sàng để bứt phá.</strong></div></div>
+    <div class="hero-index"><span>01</span> / SMARTGYM EXPERIENCE</div>
 </section>
-
-
-<div class="row g-4">
-
-    <div class="col-md-4">
-
-        <div class="smart-card h-100">
-
-            <div class="card-body">
-
-                <h4>Đặt lịch nhanh</h4>
-
-                <p class="text-muted">
-                    Chọn loại hình tập và lịch phù hợp
-                    trực tiếp trên hệ thống.
-                </p>
-
-            </div>
-
-        </div>
-
+@if (customer)
+{
+    <section class="member-shortcuts" aria-label="Truy cập nhanh cho thành viên">
+        <div class="member-shortcuts-intro"><span class="section-eyebrow">NHỊP TẬP CỦA BẠN</span><h2>Sẵn sàng cho hôm nay?</h2><p>Mọi thứ cho buổi tập tiếp theo, ngay tại đây.</p></div>
+        <a asp-controller="Booking" asp-action="Index"><span class="member-shortcut-icon"><partial name="_Icon" model='@("calendar")' /></span><span><strong>Lịch tập của tôi</strong><small>Xem và sắp xếp buổi tập</small></span><span aria-hidden="true">↗</span></a>
+        <a asp-controller="Membership" asp-action="Index"><span class="member-shortcut-icon"><partial name="_Icon" model='@("shield")' /></span><span><strong>Thẻ thành viên</strong><small>Theo dõi gói tập và quyền lợi</small></span><span aria-hidden="true">↗</span></a>
+        @if (BuildFeatures.AIEnabled)
+        {
+            <a asp-controller="AIChat" asp-action="Index" class="member-shortcut-ai"><span class="member-shortcut-icon"><partial name="_Icon" model='@("sparkles")' /></span><span><strong>Hỏi AI Virtual PT</strong><small>Hiểu bài tập, rõ mục tiêu</small></span><span aria-hidden="true">↗</span></a>
+        }
+    </section>
+}
+<section class="home-section" id="services" aria-labelledby="servicesTitle">
+    <div class="section-heading"><div><span class="section-eyebrow">MỌI THỨ BẠN CẦN</span><h2 id="servicesTitle">Một nơi. Trọn hành trình.</h2></div><p>Từ buổi tập đầu tiên đến thói quen mỗi ngày,<br class="d-none d-md-block" /> SmartGym luôn đồng hành cùng bạn.</p></div>
+    <div class="experience-grid">
+        <a class="experience-card" asp-controller="@(customer ? "Booking" : staff ? "BookingManagement" : "Auth")" asp-action="@(customer ? "Create" : staff ? "Index" : "Login")">
+            <span class="experience-icon"><partial name="_Icon" model='@("calendar")' /></span><span class="experience-number">01 / LỊCH TẬP</span>
+            <h3>Chủ động từng buổi tập</h3><p>Chọn dịch vụ và khung giờ phù hợp. Tất cả lịch tập được sắp xếp gọn gàng, ngay trong tầm tay.</p><span class="experience-link">Đặt lịch dễ dàng <partial name="_Icon" model='@("arrow")' /></span>
+        </a>
+        <a class="experience-card" asp-controller="@(customer ? "MyPTSchedule" : staff ? "PTScheduleManagement" : "Package")" asp-action="Index">
+            <span class="experience-icon"><partial name="_Icon" model='@("user")' /></span><span class="experience-number">02 / HUẤN LUYỆN VIÊN</span>
+            <h3>Đúng người đồng hành</h3><p>Tập luyện cùng Personal Trainer theo gói phù hợp, với lịch huấn luyện rõ ràng cho từng buổi.</p><span class="experience-link">Khám phá tập cùng PT <partial name="_Icon" model='@("arrow")' /></span>
+        </a>
+        @if (BuildFeatures.AIEnabled)
+        {
+        <a class="experience-card experience-card-accent" asp-controller="@(customer ? "AIChat" : staff ? (User.IsInRole("ADMIN") ? "ExerciseManagement" : "PTScheduleManagement") : "Auth")" asp-action="@(customer || staff ? "Index" : "Login")">
+            <span class="experience-icon"><partial name="_Icon" model='@("sparkles")' /></span><span class="experience-number">03 / TẬP LUYỆN THÔNG MINH</span>
+            <h3>Hiểu bạn. Hiểu cách tập.</h3><p>Giáo án theo mục tiêu và trợ lý AI giúp bạn hiểu rõ từng bài tập trên hành trình của mình.</p><span class="experience-link">@(customer ? "Trò chuyện cùng AI PT" : staff ? (User.IsInRole("ADMIN") ? "Khám phá thư viện bài tập" : "Xem lịch huấn luyện") : "Khám phá AI Virtual PT") <partial name="_Icon" model='@("arrow")' /></span>
+        </a>
+        }
+        else
+        {
+        <a class="experience-card experience-card-accent" asp-controller="@(customer ? "Membership" : staff ? "PaymentManagement" : "Package")" asp-action="Index">
+            <span class="experience-icon"><partial name="_Icon" model='@("wallet")' /></span><span class="experience-number">03 / THẺ THÀNH VIÊN</span>
+            <h3>Gói tập rõ ràng. An tâm mỗi ngày.</h3><p>Theo dõi thời hạn gói tập, quyền lợi thành viên và lịch sử thanh toán ngay trên website.</p><span class="experience-link">@(customer ? "Xem thẻ thành viên" : staff ? "Quản lý thanh toán" : "Khám phá gói tập") <partial name="_Icon" model='@("arrow")' /></span>
+        </a>
+        }
     </div>
-
-
-    <div class="col-md-4">
-
-        <div class="smart-card h-100">
-
-            <div class="card-body">
-
-                <h4>Personal Trainer</h4>
-
-                <p class="text-muted">
-                    Khách hàng Premium được sắp xếp lịch
-                    tập cùng PT phù hợp.
-                </p>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <div class="col-md-4">
-
-        <div class="smart-card h-100">
-
-            <div class="card-body">
-
-                <h4>AI Virtual PT</h4>
-
-                <p class="text-muted">
-                    Nhận giáo án và tư vấn tập luyện
-                    cá nhân hóa bằng AI.
-                </p>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
+</section>
+<section class="home-cta"><div><span class="section-eyebrow">BẮT ĐẦU TỪ MỘT LỰA CHỌN</span><h2>Buổi tập tiếp theo của bạn<br />đang chờ.</h2></div><a asp-controller="Package" asp-action="Index" class="btn btn-smart-primary">Tìm gói tập phù hợp <partial name="_Icon" model='@("arrow")' /></a><span class="cta-watermark" aria-hidden="true">GO.</span></section>

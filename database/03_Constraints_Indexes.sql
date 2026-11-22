@@ -1,8 +1,3 @@
--- ============================================================
--- SMARTGYM BOOKING
--- 03_Constraints_Indexes.sql
--- Constraints + indexes
--- ============================================================
 
 USE SmartGymBookingDB;
 GO

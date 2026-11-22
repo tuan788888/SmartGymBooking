@@ -1,8 +1,3 @@
--- ============================================================
--- SMARTGYM BOOKING
--- 05_SeedData.sql
--- Seed data including EMPLOYEE role
--- ============================================================
 
 USE SmartGymBookingDB;
 GO

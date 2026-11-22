@@ -227,7 +227,6 @@ body {
     color: #6b7280;
 }
 
-/* Keep cards/forms readable while tables scroll within their own containers. */
 .smart-card, .table-shell, .row > * { min-width: 0; }
 .smart-card { overflow-wrap: anywhere; }
 .page-shell .d-flex.justify-content-between { flex-wrap: wrap; gap: 0.75rem; }

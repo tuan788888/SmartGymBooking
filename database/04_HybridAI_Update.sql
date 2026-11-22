@@ -1,8 +1,3 @@
--- ============================================================
--- SMARTGYM BOOKING
--- 04_HybridAI_Update.sql
--- Hybrid AI fields
--- ============================================================
 
 USE SmartGymBookingDB;
 GO

@@ -38,7 +38,6 @@ def main():
         ])),
         ("classifier", RandomForestClassifier(n_estimators=100, random_state=42)),
     ])
-    # Some demo classes have only one row, so stratification is not possible.
     x_train, x_test, y_train, y_test = train_test_split(
         df[FEATURES], df["PlanType"], test_size=0.25, random_state=42)
     pipeline.fit(x_train, y_train)
@@ -47,7 +46,6 @@ def main():
     print(f"Accuracy: {accuracy_score(y_test, predictions):.4f}")
     print(classification_report(y_test, predictions, zero_division=0))
     print("Demo holdout only; tiny dataset and singleton classes limit this evaluation.")
-    # Fit the deployment model on all available rows after holdout evaluation.
     pipeline.fit(df[FEATURES], df["PlanType"])
     initial_types = [(name, StringTensorType([None, 1]) if name in CATEGORICAL
                       else FloatTensorType([None, 1])) for name in FEATURES]

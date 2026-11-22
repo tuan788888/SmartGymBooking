@@ -18,23 +18,16 @@ namespace SmartGymBooking.Controllers
             _context = context;
         }
 
-        // ===============================
-        // LIST
-        // ===============================
         public async Task<IActionResult> Index()
         {
             var services = await _context.Services
-                .OrderByDescending(s => s.IsActive)
-                .ThenBy(s => s.Name)
+                .OrderBy(s => s.ServiceId)
                 .ToListAsync();
 
             return View(services);
         }
 
 
-        // ===============================
-        // CREATE GET
-        // ===============================
         [HttpGet]
         public IActionResult Create()
         {
@@ -42,9 +35,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // ===============================
-        // CREATE POST
-        // ===============================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
@@ -94,9 +84,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // ===============================
-        // EDIT GET
-        // ===============================
         [HttpGet]
         public async Task<IActionResult> Edit(long id)
         {
@@ -120,9 +107,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // ===============================
-        // EDIT POST
-        // ===============================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
@@ -178,9 +162,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // ===============================
-        // ACTIVE / INACTIVE
-        // ===============================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleStatus(long id)
@@ -202,9 +183,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // ===============================
-        // DELETE GET
-        // ===============================
         [HttpGet]
         public async Task<IActionResult> Delete(long id)
         {
@@ -220,9 +198,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // ===============================
-        // DELETE POST
-        // ===============================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)

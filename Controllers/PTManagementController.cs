@@ -22,9 +22,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // ==========================================
-        // LIST
-        // ==========================================
 
         public async Task<IActionResult> Index(string? search)
         {
@@ -54,9 +51,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // ==========================================
-        // DETAILS
-        // ==========================================
 
         public async Task<IActionResult> Details(long id)
         {
@@ -74,9 +68,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // ==========================================
-        // CREATE GET
-        // ==========================================
 
         [HttpGet]
         public IActionResult Create()
@@ -85,9 +76,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // ==========================================
-        // CREATE POST
-        // ==========================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -188,9 +176,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // ==========================================
-        // EDIT GET
-        // ==========================================
 
         [HttpGet]
         public async Task<IActionResult> Edit(long id)
@@ -220,9 +205,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // ==========================================
-        // EDIT POST
-        // ==========================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -336,9 +318,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // ==========================================
-        // ACTIVE / INACTIVE
-        // ==========================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -370,9 +349,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // ==========================================
-        // DELETE GET
-        // ==========================================
 
         [HttpGet]
         public async Task<IActionResult> Delete(long id)
@@ -389,9 +365,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // ==========================================
-        // DELETE POST
-        // ==========================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -439,9 +412,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // ==========================================
-        // SAVE AVATAR
-        // ==========================================
 
         private static void Normalize(PTViewModel model)
         {
@@ -475,7 +445,6 @@ namespace SmartGymBooking.Controllers
                 );
             }
 
-            // Tối đa 5 MB
             if (avatarFile.Length > 5 * 1024 * 1024)
             {
                 throw new InvalidOperationException(
@@ -509,9 +478,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // ==========================================
-        // DELETE AVATAR
-        // ==========================================
 
         private async Task ValidateAvatarAsync(IFormFile? file)
         {

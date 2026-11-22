@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
+using SmartGymBooking.Models;
 using Microsoft.EntityFrameworkCore;
 using SmartGymBooking.Data;
 using SmartGymBooking.ViewModels;
@@ -11,17 +13,15 @@ namespace SmartGymBooking.Controllers
     public class CustomerManagementController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IPasswordHasher<User> _passwordHasher;
 
-        public CustomerManagementController(ApplicationDbContext context)
+        public CustomerManagementController(ApplicationDbContext context, IPasswordHasher<User> passwordHasher)
         {
             _context = context;
+            _passwordHasher = passwordHasher;
         }
 
 
-        // =====================================
-        // DANH SÁCH CUSTOMER
-        // ADMIN + EMPLOYEE
-        // =====================================
 
         public async Task<IActionResult> Index(string? search)
         {
@@ -50,10 +50,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // =====================================
-        // CHI TIẾT CUSTOMER
-        // ADMIN + EMPLOYEE
-        // =====================================
 
         public async Task<IActionResult> Details(long id)
         {
@@ -76,17 +72,12 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // =====================================
-        // EDIT GET
-        // CHỈ ADMIN
-        // =====================================
 
-        [Authorize(Roles = "ADMIN")]
         [HttpGet]
         public async Task<IActionResult> Edit(long id)
         {
-            var customer = await _context.Customers
-                .FirstOrDefaultAsync(c => c.CustomerId == id);
+            var customer = await _context.Customers.Include(c => c.User)
+                .FirstOrDefaultAsync(c => c.CustomerId == id && c.User.Role == "CUSTOMER");
 
             if (customer == null)
             {
@@ -96,6 +87,7 @@ namespace SmartGymBooking.Controllers
             var model = new CustomerEditViewModel
             {
                 CustomerId = customer.CustomerId,
+                Email = customer.User.Email,
                 FullName = customer.FullName,
                 Phone = customer.Phone,
                 DateOfBirth = customer.DateOfBirth,
@@ -115,31 +107,45 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // =====================================
-        // EDIT POST
-        // CHỈ ADMIN
-        // =====================================
 
-        [Authorize(Roles = "ADMIN")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
             CustomerEditViewModel model)
         {
+            var canManageCredentials = User.IsInRole("ADMIN");
+            if (!canManageCredentials)
+            {
+                ModelState.Remove(nameof(model.Email));
+                ModelState.Remove(nameof(model.Password));
+            }
+            else if (string.IsNullOrWhiteSpace(model.Email))
+            {
+                ModelState.AddModelError(nameof(model.Email), "Vui lòng nhập email đăng nhập.");
+            }
+
             model.Phone = string.IsNullOrWhiteSpace(model.Phone) ? null : model.Phone.Trim();
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            var customer = await _context.Customers
+            var customer = await _context.Customers.Include(c => c.User)
                 .FirstOrDefaultAsync(
-                    c => c.CustomerId == model.CustomerId
+                    c => c.CustomerId == model.CustomerId && c.User.Role == "CUSTOMER"
                 );
 
             if (customer == null)
             {
                 return NotFound();
+            }
+
+            var email = canManageCredentials ? model.Email!.Trim().ToLowerInvariant() : customer.User.Email;
+            if (canManageCredentials && await _context.Users.AnyAsync(u =>
+                u.UserId != customer.UserId && u.Email.ToLower() == email))
+            {
+                ModelState.AddModelError(nameof(model.Email), "Email đã được sử dụng.");
+                return View(model);
             }
 
             if (!string.IsNullOrWhiteSpace(model.Phone))
@@ -184,7 +190,24 @@ namespace SmartGymBooking.Controllers
 
             customer.UpdatedAt = DateTime.Now;
 
-            await _context.SaveChangesAsync();
+            if (canManageCredentials)
+            {
+                customer.User.Email = email;
+                if (!string.IsNullOrWhiteSpace(model.Password))
+                    customer.User.PasswordHash = _passwordHasher.HashPassword(customer.User, model.Password);
+                customer.User.UpdatedAt = customer.UpdatedAt;
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                ModelState.AddModelError(string.Empty,
+                    "Không thể lưu thông tin. Vui lòng kiểm tra lại email và số điện thoại.");
+                return View(model);
+            }
 
             TempData["SuccessMessage"] =
                 "Cập nhật khách hàng thành công.";
@@ -196,10 +219,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // =====================================
-        // KHÓA / MỞ TÀI KHOẢN
-        // CHỈ ADMIN
-        // =====================================
 
         [Authorize(Roles = "ADMIN")]
         [HttpPost]
@@ -208,7 +227,7 @@ namespace SmartGymBooking.Controllers
         {
             var customer = await _context.Customers
                 .Include(c => c.User)
-                .FirstOrDefaultAsync(c => c.CustomerId == id);
+                .FirstOrDefaultAsync(c => c.CustomerId == id && c.User.Role == "CUSTOMER");
 
             if (customer == null)
             {
@@ -244,10 +263,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // =====================================
-        // DELETE POST
-        // CHỈ ADMIN
-        // =====================================
 
         [Authorize(Roles = "ADMIN")]
         [HttpPost]
@@ -271,7 +286,6 @@ namespace SmartGymBooking.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Kiểm tra dữ liệu nghiệp vụ liên quan
             var hasPayment = await _context.Payments
                 .AnyAsync(x => x.CustomerId == id);
 

@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -24,9 +25,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // =========================
-        // LOGIN GET
-        // =========================
 
         [HttpGet]
         public IActionResult Login()
@@ -40,9 +38,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // =========================
-        // LOGIN POST
-        // =========================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -92,6 +87,8 @@ namespace SmartGymBooking.Controllers
 
             var claims = new List<Claim>
             {
+                new Claim("credential_stamp", user.GetCredentialStamp()),
+
                 new Claim(
                     ClaimTypes.NameIdentifier,
                     user.UserId.ToString()
@@ -135,10 +132,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // =========================
-        // REGISTER GET
-        // Chỉ Customer tự đăng ký
-        // =========================
 
         [HttpGet]
         public IActionResult Register()
@@ -152,127 +145,71 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // =========================
-        // REGISTER POST
-        // =========================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterViewModel model)
+        public Task<IActionResult> Register(RegisterViewModel model)
+        {
+            return RegisterCustomerAsync(model, managed: false);
+        }
+
+        [Authorize(Roles = "ADMIN,EMPLOYEE")]
+        [HttpGet]
+        public IActionResult CreateCustomer() => View("Register", new RegisterViewModel());
+
+        [Authorize(Roles = "ADMIN,EMPLOYEE")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public Task<IActionResult> CreateCustomer(RegisterViewModel model)
+        {
+            return RegisterCustomerAsync(model, managed: true);
+        }
+
+        private async Task<IActionResult> RegisterCustomerAsync(RegisterViewModel model, bool managed)
         {
             if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
+                return View("Register", model);
 
             var email = model.Email.Trim().ToLowerInvariant();
-            model.Phone = string.IsNullOrWhiteSpace(model.Phone) ? null : model.Phone.Trim();
+            var phone = model.Phone?.Trim();
+            if (await _context.Users.AnyAsync(u => u.Email.ToLower() == email))
+                ModelState.AddModelError(nameof(model.Email), "Email đã được sử dụng.");
 
-            var emailExists = await _context.Users
-                .AnyAsync(u => u.Email.ToLower() == email);
+            if (await _context.Customers.AnyAsync(c => c.Phone == phone))
+                ModelState.AddModelError(nameof(model.Phone), "Số điện thoại đã được sử dụng.");
 
-            if (emailExists)
+            if (!ModelState.IsValid)
+                return View("Register", model);
+
+            var now = DateTime.Now;
+            var user = new User { Email = email, Role = "CUSTOMER", IsActive = true, CreatedAt = now };
+            user.PasswordHash = _passwordHasher.HashPassword(user, model.Password);
+            _context.Customers.Add(new Customer
             {
-                ModelState.AddModelError(
-                    nameof(model.Email),
-                    "Email đã được sử dụng."
-                );
-
-                return View(model);
-            }
-
-            if (!string.IsNullOrWhiteSpace(model.Phone))
-            {
-                var phoneExists = await _context.Customers
-                    .AnyAsync(c => c.Phone == model.Phone);
-
-                if (phoneExists)
-                {
-                    ModelState.AddModelError(
-                        nameof(model.Phone),
-                        "Số điện thoại đã được sử dụng."
-                    );
-
-                    return View(model);
-                }
-            }
-
-            await using var transaction =
-                await _context.Database.BeginTransactionAsync();
+                User = user,
+                FullName = model.FullName.Trim(),
+                Phone = phone,
+                DateOfBirth = model.DateOfBirth,
+                Gender = model.Gender,
+                CreatedAt = now
+            });
 
             try
             {
-                var user = new User
-                {
-                    Email = email,
-
-                    // tạm thời, sẽ hash ngay bên dưới
-                    PasswordHash = string.Empty,
-
-                    Role = "CUSTOMER",
-
-                    IsActive = true,
-
-                    CreatedAt = DateTime.Now
-                };
-
-                user.PasswordHash =
-                    _passwordHasher.HashPassword(
-                        user,
-                        model.Password
-                    );
-
-                _context.Users.Add(user);
-
                 await _context.SaveChangesAsync();
-
-                var customer = new Customer
-                {
-                    UserId = user.UserId,
-
-                    FullName = model.FullName.Trim(),
-
-                    Phone = string.IsNullOrWhiteSpace(model.Phone)
-                        ? null
-                        : model.Phone.Trim(),
-
-                    DateOfBirth = model.DateOfBirth,
-
-                    Gender = string.IsNullOrWhiteSpace(model.Gender)
-                        ? null
-                        : model.Gender,
-
-                    CreatedAt = DateTime.Now
-                };
-
-                _context.Customers.Add(customer);
-
-                await _context.SaveChangesAsync();
-
-                await transaction.CommitAsync();
-
-                TempData["SuccessMessage"] =
-                    "Đăng ký thành công. Vui lòng đăng nhập.";
-
-                return RedirectToAction(nameof(Login));
             }
-            catch
+            catch (DbUpdateException)
             {
-                await transaction.RollbackAsync();
-
-                ModelState.AddModelError(
-                    string.Empty,
-                    "Không thể tạo tài khoản. Vui lòng thử lại."
-                );
-
-                return View(model);
+                ModelState.AddModelError(string.Empty,
+                    "Không thể tạo tài khoản. Vui lòng kiểm tra lại thông tin hoặc thử lại sau.");
+                return View("Register", model);
             }
+
+            TempData["SuccessMessage"] = managed ? "Đã thêm tài khoản khách hàng." : "Đăng ký thành công. Vui lòng đăng nhập.";
+            return managed
+                ? RedirectToAction(nameof(CustomerManagementController.Index), "CustomerManagement")
+                : RedirectToAction(nameof(Login));
         }
-
-
-        // =========================
-        // LOGOUT
-        // =========================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -286,9 +223,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // =========================
-        // ACCESS DENIED
-        // =========================
 
         [HttpGet]
         public IActionResult AccessDenied()
@@ -298,9 +232,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // =========================
-        // ROLE REDIRECT
-        // =========================
 
         private IActionResult RedirectByRole(ClaimsPrincipal principal)
         {

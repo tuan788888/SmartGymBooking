@@ -36,6 +36,21 @@
                         </div>
 
 
+                        @if (User.IsInRole("ADMIN"))
+                        {
+                            <div class="mb-3">
+                                <label asp-for="Email" class="form-label">Email đăng nhập</label>
+                                <input asp-for="Email" type="email" class="form-control" autocomplete="off" required />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="Password" class="form-label">Mật khẩu mới</label>
+                                <input asp-for="Password" class="form-control" autocomplete="new-password" />
+                                <span asp-validation-for="Password" class="text-danger"></span>
+                                <div class="form-text">Để trống nếu giữ mật khẩu hiện tại.</div>
+                            </div>
+                        }
+
                         <div class="mb-3">
 
                             <label asp-for="FullName"
@@ -180,7 +195,9 @@
                                     Giảm cân
                                 </option>
 
-                                <option value="MUSCLE_GAIN">
+                                <option value="HYPERTROPHY">Tăng cơ (giáo án AI)</option>
+                                    <option value="FITNESS">Thể lực</option>
+                                    <option value="MUSCLE_GAIN">
                                     Tăng cơ
                                 </option>
 

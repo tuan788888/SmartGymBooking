@@ -32,16 +32,8 @@
 
             </a>
 
-            @if (User.IsInRole("ADMIN"))
-            {
-                <a asp-action="Edit"
-                   asp-route-id="@Model.CustomerId"
-                   class="btn btn-warning">
-
-                    Sửa thông tin
-
-                </a>
-            }
+            <a asp-controller="BookingManagement" asp-action="Index" asp-route-customerId="@Model.CustomerId" class="btn btn-outline-primary">Xem lịch đặt</a>
+            <a asp-action="Edit" asp-route-id="@Model.CustomerId" class="btn btn-warning">Sửa thông tin</a>
 
         </div>
 
@@ -117,12 +109,12 @@
 
                     <p>
                         <strong>Chiều cao:</strong>
-                        @Model.Height cm
+                        @(Model.Height is decimal height ? $"{height:0.##} cm" : "—")
                     </p>
 
                     <p>
                         <strong>Cân nặng:</strong>
-                        @Model.Weight kg
+                        @(Model.Weight is decimal weight ? $"{weight:0.##} kg" : "—")
                     </p>
 
                     <p>

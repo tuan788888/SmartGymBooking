@@ -209,7 +209,7 @@ namespace SmartGymBooking.Controllers
             var employee = await _context.Employees
                 .Include(e => e.User)
                 .FirstOrDefaultAsync(
-                    e => e.EmployeeId == model.EmployeeId
+                    e => e.EmployeeId == model.EmployeeId && e.User.Role == "EMPLOYEE"
                 );
 
             if (employee == null)
@@ -218,7 +218,7 @@ namespace SmartGymBooking.Controllers
             var email = model.Email.Trim().ToLowerInvariant();
 
             var emailExists = await _context.Users.AnyAsync(u =>
-                u.Email == email &&
+                u.Email.ToLower() == email &&
                 u.UserId != employee.UserId
             );
 
@@ -261,7 +261,16 @@ namespace SmartGymBooking.Controllers
                     );
             }
 
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                ModelState.AddModelError(string.Empty,
+                    "Không thể lưu thông tin nhân viên. Vui lòng kiểm tra lại email và số điện thoại.");
+                return View(model);
+            }
 
             TempData["SuccessMessage"] =
                 "Cập nhật nhân viên thành công.";

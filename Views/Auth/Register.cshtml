@@ -1,10 +1,15 @@
 @model SmartGymBooking.ViewModels.RegisterViewModel
 
 @{
-    ViewData["Title"] = "Đăng ký";
+    var managed = ViewContext.RouteData.Values["action"]?.ToString() == "CreateCustomer";
+    ViewData["Title"] = managed ? "Thêm khách hàng" : "Đăng ký";
 }
 
-<div class="auth-shell"><aside class="auth-story"><span class="section-eyebrow">BẮT ĐẦU CÙNG SMARTGYM</span><h1>Một khởi đầu.<br /><em>Nhiều thay đổi.</em></h1><p>Tạo tài khoản để chọn gói tập, đặt lịch linh hoạt và xây dựng thói quen cho riêng bạn.</p><a asp-controller="Package" asp-action="Index">Tìm gói tập phù hợp ↗</a></aside>
+<div class="auth-shell">
+@if (!managed)
+{
+    <aside class="auth-story"><span class="section-eyebrow">BẮT ĐẦU CÙNG SMARTGYM</span><h1>Một khởi đầu.<br /><em>Nhiều thay đổi.</em></h1><p>Tạo tài khoản để chọn gói tập, đặt lịch linh hoạt và xây dựng thói quen cho riêng bạn.</p><a asp-controller="Package" asp-action="Index">Tìm gói tập phù hợp ↗</a></aside>
+}
 
     <div class="row justify-content-center auth-form-row">
 
@@ -15,7 +20,7 @@
                 <div class="card-body auth-panel-body">
 
                     <h2 class="auth-title">
-                        Đăng ký SmartGym
+                        @(managed ? "Thêm khách hàng" : "Đăng ký SmartGym")
                     </h2>
 
 
@@ -24,7 +29,7 @@
                     </div>
 
 
-                    <form asp-action="Register"
+                    <form asp-action="@(managed ? "CreateCustomer" : "Register")"
                           method="post">
 
                         @Html.AntiForgeryToken()
@@ -71,7 +76,7 @@
                                 Số điện thoại
                             </label>
 
-                            <input asp-for="Phone" type="tel" autocomplete="tel"
+                            <input asp-for="Phone" type="tel" inputmode="numeric" maxlength="11" autocomplete="tel"
                                    class="form-control" />
 
                             <span asp-validation-for="Phone"
@@ -163,13 +168,21 @@
                         <button type="submit"
                                 class="btn btn-smart-success w-100">
 
-                            Đăng ký
+                            @(managed ? "Thêm khách hàng" : "Đăng ký")
 
                         </button>
 
                     </form>
 
 
+                    @if (managed)
+                    {
+                        <div class="text-center auth-switch">
+                            <a asp-controller="CustomerManagement" asp-action="Index">Quay lại danh sách khách hàng</a>
+                        </div>
+                    }
+                    else
+                    {
                     <div class="text-center auth-switch">
 
                         Đã có tài khoản?
@@ -182,6 +195,7 @@
                         </a>
 
                     </div>
+                    }
 
                 </div>
 

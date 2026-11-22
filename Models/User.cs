@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace SmartGymBooking.Models;
@@ -8,6 +8,9 @@ public partial class User
     public long UserId { get; set; }
 
     public string Email { get; set; } = null!;
+
+    public string GetCredentialStamp() => Convert.ToHexString(
+        System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(PasswordHash)));
 
     public string PasswordHash { get; set; } = null!;
 

@@ -6,6 +6,14 @@ namespace SmartGymBooking.ViewModels
     {
         public long CustomerId { get; set; }
 
+        [EmailAddress(ErrorMessage = "Email đăng nhập không hợp lệ.")]
+        [StringLength(255, ErrorMessage = "Email không được dài quá 255 ký tự.")]
+        public string? Email { get; set; }
+
+        [MinLength(6, ErrorMessage = "Mật khẩu mới phải có ít nhất 6 ký tự.")]
+        [DataType(DataType.Password)]
+        public string? Password { get; set; }
+
         [Required(ErrorMessage = "Vui lòng nhập họ tên.")]
         [StringLength(150)]
         public string FullName { get; set; } = string.Empty;
@@ -27,7 +35,7 @@ namespace SmartGymBooking.ViewModels
         [Range(20, 300, ErrorMessage = "Cân nặng không hợp lệ.")]
         public decimal? Weight { get; set; }
 
-        [RegularExpression("^(WEIGHT_LOSS|MUSCLE_GAIN|MAINTAIN)$", ErrorMessage = "Mục tiêu không hợp lệ.")]
+        [RegularExpression("^(WEIGHT_LOSS|MUSCLE_GAIN|MAINTAIN|HYPERTROPHY|FITNESS)$", ErrorMessage = "Mục tiêu không hợp lệ.")]
         public string? FitnessGoal { get; set; }
 
         [RegularExpression("^(BEGINNER|INTERMEDIATE|ADVANCED)$", ErrorMessage = "Trình độ không hợp lệ.")]

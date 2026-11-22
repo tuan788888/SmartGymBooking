@@ -18,6 +18,8 @@
     </div>
 
 
+    <a asp-controller="Auth" asp-action="CreateCustomer" class="btn btn-success mb-3">Thêm khách hàng</a>
+
     @if (TempData["SuccessMessage"] != null)
     {
         <div class="alert alert-success">
@@ -147,18 +149,11 @@
                             </a>
 
 
+                            <a asp-action="Edit" asp-route-id="@customer.CustomerId" class="btn btn-sm btn-outline-warning">Sửa</a>
+
                             @if (User.IsInRole("ADMIN"))
                             {
                                 <a asp-action="Delete" asp-route-id="@customer.CustomerId" class="btn btn-sm btn-outline-danger">Xóa</a>
-                                <a asp-action="Edit"
-                                   asp-route-id="@customer.CustomerId"
-                                   class="btn btn-sm btn-outline-warning">
-
-                                    Sửa
-
-                                </a>
-
-
                                 <form asp-action="ToggleStatus"
                                       asp-route-id="@customer.CustomerId"
                                       method="post"

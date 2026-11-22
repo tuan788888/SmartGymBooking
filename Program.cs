@@ -49,7 +49,8 @@ builder.Services
             var validId = long.TryParse(context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier), out var userId);
             var db = context.HttpContext.RequestServices.GetRequiredService<ApplicationDbContext>();
             var account = validId ? await db.Users.AsNoTracking().SingleOrDefaultAsync(u => u.UserId == userId) : null;
-            if (account == null || !account.IsActive || account.Role != context.Principal?.FindFirstValue(ClaimTypes.Role))
+            if (account == null || !account.IsActive || account.Role != context.Principal?.FindFirstValue(ClaimTypes.Role) ||
+                account.GetCredentialStamp() != context.Principal?.FindFirstValue("credential_stamp"))
             {
                 context.RejectPrincipal();
                 await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

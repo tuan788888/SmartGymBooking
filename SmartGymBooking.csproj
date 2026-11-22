@@ -4,24 +4,32 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <DefaultItemExcludes>$(DefaultItemExcludes);Tests/**</DefaultItemExcludes>
+    <DefaultItemExcludes>$(DefaultItemExcludes);Tools/**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Update="appsettings.Development.json" CopyToPublishDirectory="Never" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.12">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.12" />
-    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.31.0" />
+    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.31.0" Condition="'$(EnableAiFeatures)' == 'true'" />
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(EnableAiFeatures)' == 'true'">
     <Content Include="MachineLearning\models\workout_model.onnx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(EnableAiFeatures)' != 'true'">
+    <Compile Remove="Controllers/AIChatController.cs;Controllers/WorkoutController.cs;ViewModels/AIChatViewModel.cs;Services/*AIChat*.cs;Services/*Workout*.cs;MachineLearning/**/*.cs" />
+    <Content Remove="Views/AIChat/**;Views/Workout/**;MachineLearning/**" />
+    <RazorGenerate Remove="Views/AIChat/**;Views/Workout/**" />
+    <None Remove="MachineLearning/**" />
   </ItemGroup>
 
 </Project>

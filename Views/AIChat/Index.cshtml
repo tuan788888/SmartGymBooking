@@ -1,331 +1,77 @@
 @model SmartGymBooking.ViewModels.AIChatViewModel
-
 @{
     ViewData["Title"] = "AI Virtual PT";
-
-    var conversations = Model.Conversations;
-    var provider = Model.AIProvider;
+    var latestReply = Model.Messages.LastOrDefault(m => m.Role == "ASSISTANT");
+    var demoReply = latestReply?.Content.StartsWith("AI Online hiện không khả dụng.") == true;
+    var demoMode = Model.AIProvider != "OPENAI" || demoReply;
 }
-
-
-<div class="row g-4">
-
-    <div class="col-lg-3">
-
-        <div class="smart-card">
-
-            <div class="card-body">
-
-                <h5>
-                    AI Virtual PT
-                </h5>
-
-                <p class="small text-muted">
-                    Trợ lý tập luyện SmartGym
-                </p>
-
-
-                <form asp-action="NewConversation"
-                      method="post">
-
-                    @Html.AntiForgeryToken()
-
-                    <button type="submit"
-                            class="btn
-                                   btn-smart-success
-                                   w-100">
-
-                        + Cuộc trò chuyện mới
-
-                    </button>
-
-                </form>
-
-
-                <hr />
-
-
-                <small class="text-muted">
-                    Lịch sử
-                </small>
-
-
-                <div class="mt-2">
-
-                    @if (conversations != null)
-                    {
-                        foreach (var conversation
-                                 in conversations)
-                        {
-                            <a asp-action="Index"
-                               asp-route-conversationId="@conversation.AiconversationId"
-                               class="d-block
-                                      border
-                                      rounded
-                                      p-2
-                                      mb-2
-                                      text-decoration-none text-break @(Model.ConversationId == conversation.AiconversationId ? "bg-light border-success" : "")">
-
-                                <div class="fw-semibold text-dark">
-
-                                    @conversation.Title
-
-                                </div>
-
-                                <small class="text-muted">
-
-                                    @conversation.CreatedAt.ToString("dd/MM/yyyy HH:mm")
-
-                                </small>
-
-                            </a>
-                        }
-                    }
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <div class="col-lg-9">
-
-        <div class="smart-card">
-
-            <div class="card-header
-                        d-flex
-                        justify-content-between
-                        align-items-center">
-
-                <div>
-
-                    <h4 class="mb-1">
-                        @Model.ConversationTitle
-                    </h4>
-
-                    <small class="text-muted">
-                        Trợ lý tập luyện cá nhân
-                    </small>
-
-                </div>
-
-
-                @if (provider == "OPENAI")
-                {
-                    <span class="badge bg-primary">
-                        AI Online
-                    </span>
-                }
-                else
-                {
-                    <span class="badge bg-success">
-                        Demo AI • Free
-                    </span>
-                }
-
-            </div>
-
-
-            <div class="card-body">
-
-                @if (TempData["ErrorMessage"] != null)
-                {
-                    <div class="alert alert-danger">
-
-                        @TempData["ErrorMessage"]
-
-                    </div>
-                }
-
-
-                <div id="chatMessages"
-                     class="border
-                            rounded
-                            p-3
-                            mb-3"
-                     role="log" aria-label="Tin nhắn trò chuyện"
-                     style="
-                        height:500px;
-                        overflow-y:auto;
-                        background:#f8fafc;
-                     ">
-
-
-                    @if (!Model.Messages.Any())
-                    {
-                        <div class="text-center
-                                    text-muted
-                                    py-5">
-
-                            <h4>
-                                AI Virtual PT
-                            </h4>
-
-                            <p>
-                                Hãy thử hỏi:
-                            </p>
-
-                            <div>
-                                "Giáo án của tôi là gì?"
-                            </div>
-
-                            <div>
-                                "BMI của tôi bao nhiêu?"
-                            </div>
-
-                            <div>
-                                "Tôi muốn tăng cơ"
-                            </div>
-
-                            <div>
-                                "Tôi nên tập ngực thế nào?"
-                            </div>
-
-                        </div>
-                    }
-
-
-                    @foreach (var message
-                              in Model.Messages)
-                    {
-                        if (message.Role == "USER")
-                        {
-                            <div class="d-flex
-                                        justify-content-end
-                                        mb-3">
-
-                                <div class="bg-dark
-                                            text-white
-                                            rounded
-                                            p-3"
-                                     style="
-                                        max-width:75%;
-                                        white-space:pre-wrap; overflow-wrap:anywhere;
-                                     ">
-
-                                    @message.Content
-
-                                </div>
-
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="d-flex
-                                        justify-content-start
-                                        mb-3">
-
-                                <div class="bg-white
-                                            border
-                                            rounded
-                                            p-3"
-                                     style="
-                                        max-width:80%;
-                                        white-space:pre-wrap; overflow-wrap:anywhere;
-                                     ">
-
-                                    <div class="fw-bold
-                                                text-success
-                                                mb-1">
-
-                                        AI PT
-
-                                    </div>
-
-                                    @message.Content
-
-                                </div>
-
-                            </div>
-                        }
-                    }
-
-                </div>
-
-
-                <form asp-action="Send"
-                      method="post" id="ai-chat-form">
-
-                    @Html.AntiForgeryToken()
-
-
-                    <input asp-for="ConversationId"
-                           type="hidden" />
-
-
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <label asp-for="Message" class="form-label">Câu hỏi của bạn</label>
-                    <div class="input-group">
-
-                        <textarea asp-for="Message"
-                                  class="form-control"
-                                  rows="2"
-                                  maxlength="2000" required
-                                  placeholder="Hỏi AI PT..."
-                                  style="resize:none;">
-                        </textarea>
-
-
-                        <button type="submit"
-                                class="btn
-                                       btn-smart-success
-                                       px-4">
-
-                            Gửi
-
-                        </button>
-
-                    </div>
-                    <span asp-validation-for="Message" class="text-danger"></span>
-
-                </form>
-
-
-                <div class="small
-                            text-muted
-                            mt-2">
-
-                    AI PT hỗ trợ thông tin tập luyện.
-                    Không thay thế tư vấn y tế chuyên môn.
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-@section Scripts
-{
-    <partial name="_ValidationScriptsPartial" />
-    <script>
-
-        const chat =
-            document.getElementById(
-                "chatMessages"
-            );
-
-        if (chat) {
-
-            chat.scrollTop =
-                chat.scrollHeight;
-
-        }
-
-        document.getElementById('ai-chat-form').addEventListener('submit', function () {
-            if (this.checkValidity() && (!window.jQuery || window.jQuery(this).valid())) {
-                const button = this.querySelector('button[type="submit"]');
-                button.disabled = true;
-                button.textContent = 'Đang trả lời…';
+<link rel="stylesheet" href="~/css/ai-chat.css" asp-append-version="true" />
+<div class="pt-intro"><div><span class="section-eyebrow">TẬP LUYỆN CÙNG SMARTGYM</span><h1>Thêm hiểu biết. Thêm động lực.</h1><p>Một nơi để hỏi, hiểu giáo án và tìm nhịp tập phù hợp với bạn.</p></div><span class="pt-intro-icon"><partial name="_Icon" model='@("sparkles")' /></span></div>
+<div class="pt-workspace">
+    <aside class="pt-history" aria-label="Lịch sử trò chuyện">
+        <div class="pt-history-heading"><span class="pt-avatar"><partial name="_Icon" model='@("sparkles")' /></span><div><strong>AI Virtual PT</strong><small>Trợ lý tập luyện của bạn</small></div></div>
+        <form asp-action="NewConversation" method="post"><button class="btn btn-smart-success w-100" type="submit">+ Cuộc trò chuyện mới</button></form>
+        <div class="pt-history-label">CUỘC TRÒ CHUYỆN</div>
+        <div class="pt-history-list">
+            @foreach (var conversation in Model.Conversations)
+            {
+                <a asp-action="Index" asp-route-conversationId="@conversation.AiconversationId" class="pt-history-item @(Model.ConversationId == conversation.AiconversationId ? "is-selected" : "")" aria-current="@(Model.ConversationId == conversation.AiconversationId ? "page" : null)"><strong>@conversation.Title</strong><small>@((conversation.UpdatedAt ?? conversation.CreatedAt).ToString("dd/MM/yyyy HH:mm"))</small></a>
             }
-        });
-
-    </script>
+            @if (!Model.Conversations.Any()) { <p class="pt-history-empty">Những cuộc trò chuyện của bạn sẽ xuất hiện ở đây.</p> }
+        </div>
+    </aside>
+    <section class="pt-chat" aria-label="Trò chuyện với AI PT">
+        <header class="pt-chat-header"><div><h2>@Model.ConversationTitle</h2><p>Hỏi về bài tập, mục tiêu và giáo án của bạn</p></div><span class="pt-mode @(demoMode ? "is-demo" : "")"><span></span>@(demoMode ? "Chế độ Demo" : "Sử dụng OpenAI")</span></header>
+        @if (Model.ConversationId is long conversationId)
+        {
+            <form asp-action="DeleteConversation" method="post" class="px-3 pt-2" data-confirm-delete-chat>
+                <input type="hidden" name="conversationId" value="@conversationId" />
+                <button class="btn btn-sm btn-outline-danger" type="submit">Xóa cuộc trò chuyện</button>
+            </form>
+        }
+        @if (TempData["SuccessMessage"] is string success) { <div class="alert alert-success m-3" role="status">@success</div> }
+        @if (TempData["ErrorMessage"] is string error) { <div class="alert alert-danger m-3" role="alert">@error</div> }
+        <div id="chatMessages" class="pt-messages" role="log" aria-label="Tin nhắn trò chuyện" aria-live="polite">
+            @if (!Model.Messages.Any())
+            {
+                <div class="pt-welcome"><span class="pt-welcome-icon"><partial name="_Icon" model='@("sparkles")' /></span><span class="section-eyebrow">CHÀO BẠN, MÌNH LÀ AI PT</span><h2>Hôm nay bạn muốn<br />tập tốt hơn điều gì?</h2><p>Bắt đầu từ một câu hỏi nhỏ. Mình sẽ giúp bạn hiểu rõ hơn về hành trình tập luyện.</p><div class="pt-suggestions">
+                    <button type="button" data-prompt="Giáo án của tôi là gì?"><strong>Hiểu giáo án</strong><span>Hôm nay tôi nên tập gì? ↗</span></button>
+                    <button type="button" data-prompt="BMI của tôi bao nhiêu?"><strong>Hiểu cơ thể</strong><span>Giải thích chỉ số BMI của tôi ↗</span></button>
+                    <button type="button" data-prompt="Tôi muốn tăng cơ, nên bắt đầu như thế nào?"><strong>Xây dựng mục tiêu</strong><span>Tôi muốn tăng cơ hiệu quả ↗</span></button>
+                    <button type="button" data-prompt="Tôi nên tập ngực thế nào cho đúng kỹ thuật?"><strong>Tập đúng kỹ thuật</strong><span>Hướng dẫn một buổi tập ngực ↗</span></button>
+                </div></div>
+            }
+            @foreach (var message in Model.Messages)
+            {
+                var isUser = message.Role == "USER";
+                var fallback = !isUser && message.Content.StartsWith("AI Online hiện không khả dụng.");
+                <article class="pt-message @(isUser ? "from-user" : "from-assistant")"><span class="pt-message-avatar" aria-hidden="true">@(isUser ? "B" : "AI")</span><div class="pt-message-body"><div class="pt-message-meta"><strong>@(isUser ? "Bạn" : fallback || Model.AIProvider != "OPENAI" ? "SmartGym · Demo AI" : "AI Virtual PT")</strong><time>@message.CreatedAt.ToString("HH:mm")</time></div><div class="pt-bubble @(fallback ? "is-fallback" : "")">@message.Content.Trim()</div>
+                        @if (!isUser && Model.ExerciseGuides.TryGetValue(message.AimessageId, out var guides) && guides.Count > 0)
+                        {
+                            <ul class="list-unstyled mt-2 mb-0" aria-label="Hướng dẫn bài tập">
+                                @foreach (var guide in guides)
+                                {
+                                    <li><partial name="_ExerciseGuide" model="guide" /></li>
+                                }
+                            </ul>
+                        }
+                    </div>
+                </article>
+            }
+        </div>
+        <div class="pt-composer">
+            <form asp-action="Send" method="post" id="ai-chat-form">
+                <input asp-for="ConversationId" type="hidden" />
+                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                <label asp-for="Message" class="visually-hidden">Câu hỏi của bạn</label>
+                <div class="pt-input-wrap"><textarea asp-for="Message" rows="2" maxlength="2000" required placeholder="Hỏi điều bạn đang băn khoăn về tập luyện…"></textarea><button type="submit" class="btn btn-smart-success" id="chatSend">Gửi <span aria-hidden="true">↑</span></button></div>
+                <span asp-validation-for="Message" class="text-danger"></span>
+                <div class="pt-composer-meta"><span id="chatStatus" role="status"></span><span id="chatCount">0 / 2000</span></div>
+            </form>
+        </div>
+    </section>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/ai-chat.js" asp-append-version="true"></script>
 }

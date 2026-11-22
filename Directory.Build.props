@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <EnableAiFeatures Condition="'$(EnableAiFeatures)' == ''">true</EnableAiFeatures>
+    <DefineConstants Condition="'$(EnableAiFeatures)' == 'true'">$(DefineConstants);AI_FEATURES</DefineConstants>
+  </PropertyGroup>
+</Project>

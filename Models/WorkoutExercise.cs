@@ -1,10 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SmartGymBooking.Models;
 
 public partial class WorkoutExercise
 {
+    public const string PlankNote = "Giữ tư thế plank 2 lần trong buổi tập.";
+
+    public static bool IsPlank(string? name) =>
+        string.Equals(name?.Trim(), "Plank", StringComparison.OrdinalIgnoreCase);
+
+    [NotMapped]
+    public (int? Sets, int? Reps, string? Note) Prescription =>
+        IsPlank(Exercise?.Name) ? (1, 2, PlankNote) : (Sets, Reps, Note);
+
     public long WorkoutExerciseId { get; set; }
 
     public long WorkoutPlanId { get; set; }

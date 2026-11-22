@@ -8,6 +8,7 @@ namespace SmartGymBooking.ViewModels
         public List<Aiconversation> Conversations { get; set; } = new();
         public string AIProvider { get; set; } = "DEMO";
         public long? ConversationId { get; set; }
+        public Dictionary<long, List<ExerciseGuideViewModel>> ExerciseGuides { get; } = new();
 
         public string ConversationTitle { get; set; }
             = "AI Virtual PT";

@@ -1,0 +1,61 @@
+﻿@model SmartGymBooking.ViewModels.WorkoutPlanOptions
+
+@{
+    ViewData["Title"] = "Tạo giáo án";
+}
+
+<a asp-action="Index" class="text-decoration-none">← Giáo án của tôi</a>
+<h2 class="page-title mt-3">Tạo giáo án</h2>
+
+<div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+<div class="row g-3 mt-1 align-items-start">
+<div class="col-lg-7">
+<form asp-action="Generate" method="post" class="smart-card p-4">
+    <h3 class="h5 mb-3">Tự chọn thông số</h3>
+
+    <div class="mb-3">
+        <label asp-for="Goal" class="form-label">Mục tiêu</label>
+        <select asp-for="Goal" class="form-select" required>
+            <option value="">Chọn mục tiêu</option>
+            <option value="HYPERTROPHY">Tăng cơ</option>
+            <option value="WEIGHT_LOSS">Giảm cân</option>
+            <option value="FITNESS">Duy trì thể lực</option>
+        </select>
+        <span asp-validation-for="Goal" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Level" class="form-label">Trình độ</label>
+        <select asp-for="Level" class="form-select" required>
+            <option value="">Chọn trình độ</option>
+            <option value="BEGINNER">Mới bắt đầu</option>
+            <option value="INTERMEDIATE">Trung cấp</option>
+            <option value="ADVANCED">Nâng cao</option>
+        </select>
+        <span asp-validation-for="Level" class="text-danger"></span>
+    </div>
+
+    <div class="mb-4">
+        <label asp-for="SessionsPerWeek" class="form-label">Số buổi mỗi tuần</label>
+        <select asp-for="SessionsPerWeek" class="form-select" required>
+            <option value="">Chọn số buổi</option>
+            <option value="3">3 buổi</option>
+            <option value="4">4 buổi</option>
+            <option value="5">5 buổi</option>
+        </select>
+        <span asp-validation-for="SessionsPerWeek" class="text-danger"></span>
+    </div>
+
+    <div><button type="submit" class="btn btn-smart-success">Tạo theo lựa chọn</button></div>
+</form>
+</div>
+
+<div class="col-lg-5">
+    <form asp-action="GenerateWithRandomForest" method="post" class="smart-card p-4">
+        <h3 class="h5 mb-3">Dùng Random Forest</h3>
+        <p class="text-muted">Tạo giáo án theo dự đoán từ hồ sơ tập luyện của bạn.</p>
+        <div><button type="submit" class="btn btn-smart-primary">Tạo bằng Random Forest</button></div>
+    </form>
+</div>
+</div>

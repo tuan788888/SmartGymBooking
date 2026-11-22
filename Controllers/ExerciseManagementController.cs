@@ -19,9 +19,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // ==============================
-        // LIST
-        // ==============================
 
         public async Task<IActionResult> Index(
             string? search,
@@ -58,9 +55,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // ==============================
-        // CREATE GET
-        // ==============================
 
         [HttpGet]
         public IActionResult Create()
@@ -69,9 +63,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // ==============================
-        // CREATE POST
-        // ==============================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -138,9 +129,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // ==============================
-        // EDIT GET
-        // ==============================
 
         [HttpGet]
         public async Task<IActionResult> Edit(long id)
@@ -170,9 +158,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // ==============================
-        // EDIT POST
-        // ==============================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -247,9 +232,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // ==============================
-        // DELETE GET
-        // ==============================
 
         [HttpGet]
         public async Task<IActionResult> Delete(long id)
@@ -268,9 +250,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // ==============================
-        // DELETE POST
-        // ==============================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -294,7 +273,7 @@ namespace SmartGymBooking.Controllers
             if (usedInPlan)
             {
                 TempData["ErrorMessage"] =
-                    "Không thể xóa bài tập vì bài tập đã được sử dụng trong Workout Plan.";
+                    "Không thể xóa bài tập vì đã có lịch sử sử dụng.";
 
                 return RedirectToAction(nameof(Index));
             }

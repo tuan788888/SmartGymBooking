@@ -1,0 +1,6 @@
+﻿@model long
+
+<form asp-action="Delete" asp-route-id="@Model" method="post"
+      onsubmit="return confirm('Bạn có chắc muốn xóa giáo án này?');">
+    <button type="submit" class="btn btn-outline-danger">Xóa giáo án</button>
+</form>

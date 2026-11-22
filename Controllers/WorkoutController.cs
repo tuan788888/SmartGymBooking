@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SmartGymBooking.Data;
 using SmartGymBooking.Services;
+using SmartGymBooking.ViewModels;
 
 namespace SmartGymBooking.Controllers
 {
@@ -11,18 +12,15 @@ namespace SmartGymBooking.Controllers
     public class WorkoutController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly IWorkoutRecommendationService _recommendationService;
         private readonly IWorkoutPlanGeneratorService _generatorService;
         private readonly ILogger<WorkoutController> _logger;
 
         public WorkoutController(
             ApplicationDbContext context,
-            IWorkoutRecommendationService recommendationService,
             IWorkoutPlanGeneratorService generatorService,
             ILogger<WorkoutController> logger)
         {
             _context = context;
-            _recommendationService = recommendationService;
             _generatorService = generatorService;
             _logger = logger;
         }
@@ -49,9 +47,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-        // =====================================
-        // MY WORKOUT PLANS
-        // =====================================
 
         public async Task<IActionResult> Index()
         {
@@ -77,43 +72,78 @@ namespace SmartGymBooking.Controllers
         }
 
 
+        [HttpGet]
+        public async Task<IActionResult> Create()
+        {
+            if (await GetCustomerIdAsync() == null) return Unauthorized();
+            return View(new WorkoutPlanOptions());
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Generate()
+        public async Task<IActionResult> Generate(WorkoutPlanOptions options)
+        {
+            return await GeneratePlanAsync(options, useRandomForest: false);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GenerateWithRandomForest()
+        {
+            return await GeneratePlanAsync(new WorkoutPlanOptions(), useRandomForest: true);
+        }
+
+        private async Task<IActionResult> GeneratePlanAsync(WorkoutPlanOptions options, bool useRandomForest)
         {
             var customerId = await GetCustomerIdAsync();
             if (customerId == null) return Unauthorized();
             var customer = await _context.Customers.FindAsync(customerId.Value);
             if (customer == null) return NotFound();
+            if (!ModelState.IsValid) return View(nameof(Create), options);
 
             try
             {
-                var today = DateTime.Today;
-                var tomorrow = today.AddDays(1);
-                if (await _context.WorkoutPlans.AnyAsync(p => p.CustomerId == customer.CustomerId
-                    && p.CreatedByAi && p.CreatedAt >= today && p.CreatedAt < tomorrow))
-                    throw new InvalidOperationException(WorkoutPlanGeneratorService.DailyLimitMessage);
-
-                var planType = await _recommendationService.PredictPlanTypeAsync(customer);
-                var plan = await _generatorService.GenerateAsync(customer, planType);
-                TempData["SuccessMessage"] = $"AI đã tạo giáo án: {planType}";
+                var planType = useRandomForest
+                    ? await HttpContext.RequestServices.GetRequiredService<IWorkoutRecommendationService>()
+                        .PredictPlanTypeAsync(customer)
+                    : $"{options.Goal}_{options.Level}_{options.SessionsPerWeek}D";
+                var plan = await _generatorService.GenerateAsync(customer, planType, useRandomForest);
+                TempData["SuccessMessage"] = useRandomForest
+                    ? "Đã tạo giáo án bằng Random Forest."
+                    : "Đã tạo giáo án theo lựa chọn của bạn.";
                 return RedirectToAction(nameof(Details), new { id = plan.WorkoutPlanId });
             }
             catch (InvalidOperationException ex)
             {
-                TempData["ErrorMessage"] = ex.Message;
+                ModelState.AddModelError(string.Empty, ex.Message);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to generate workout plan for customer {CustomerId}", customerId);
-                TempData["ErrorMessage"] = "Không thể tạo giáo án lúc này. Vui lòng thử lại sau.";
+                ModelState.AddModelError(string.Empty, "Không thể tạo giáo án lúc này. Vui lòng thử lại sau.");
             }
+            return View(nameof(Create), options);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(long id)
+        {
+            var customerId = await GetCustomerIdAsync();
+            if (customerId == null) return Unauthorized();
+            var ownedPlan = _context.WorkoutPlans.Where(p => p.WorkoutPlanId == id && p.CustomerId == customerId);
+
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+            await _context.WorkoutExercises
+                .Where(e => ownedPlan.Any(p => p.WorkoutPlanId == e.WorkoutPlanId))
+                .ExecuteDeleteAsync();
+            if (await ownedPlan.ExecuteDeleteAsync() == 0) return NotFound();
+            await transaction.CommitAsync();
+
+            TempData["SuccessMessage"] = "Đã xóa giáo án.";
             return RedirectToAction(nameof(Index));
         }
 
-        // =====================================
-        // PLAN DETAILS
-        // =====================================
 
         public async Task<IActionResult> Details(long id)
         {

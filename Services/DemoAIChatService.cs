@@ -285,9 +285,10 @@ namespace SmartGymBooking.Services
 
                     foreach (var item in day.Take(5))
                     {
+                        var prescription = item.Prescription;
                         builder.AppendLine(
                             $"- {item.Exercise.Name}: " +
-                            $"{item.Sets} sets × {item.Reps}"
+                            $"{prescription.Sets} hiệp × {prescription.Reps} lần"
                         );
                     }
                 }

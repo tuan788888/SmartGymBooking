@@ -1,0 +1,25 @@
+﻿@model SmartGymBooking.ViewModels.ExerciseGuideViewModel
+@using SmartGymBooking.Services
+
+@{
+    var url = ExerciseGuide.Resolve(Model.Name, Model.VideoUrl);
+    var embedUrl = ExerciseGuide.EmbedUrl(url);
+}
+
+<details class="mb-2">
+    <summary>Hướng dẫn @Model.Name</summary>
+    @if (!string.IsNullOrWhiteSpace(Model.Instructions))
+    {
+        <p class="small mt-2 mb-2">@Model.Instructions</p>
+    }
+    @if (embedUrl != null)
+    {
+        <div class="ratio ratio-16x9 mt-2" style="width:min(320px, 70vw)">
+            <iframe src="@embedUrl" title="Video hướng dẫn @Model.Name" loading="lazy"
+                    referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        </div>
+    }
+    <a class="d-inline-block small mt-2" href="@url" target="_blank" rel="noopener">
+        @(embedUrl != null ? "Mở trên YouTube" : "Tìm hướng dẫn video")
+    </a>
+</details>

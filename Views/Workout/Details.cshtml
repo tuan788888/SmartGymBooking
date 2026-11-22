@@ -1,4 +1,4 @@
-@model SmartGymBooking.Models.WorkoutPlan
+﻿@model SmartGymBooking.Models.WorkoutPlan
 
 @{
     ViewData["Title"] = "Chi tiết giáo án";
@@ -21,6 +21,8 @@
     <h2 class="page-title mt-3">
         @Model.Title
     </h2>
+
+    <partial name="_DeletePlan" model="Model.WorkoutPlanId" />
 
 
     @if (!string.IsNullOrWhiteSpace(
@@ -66,7 +68,7 @@
                             <th>Sets</th>
                             <th>Reps</th>
                             <th>Nghỉ</th>
-                            <th>Video</th>
+                            <th>Hướng dẫn</th>
                         </tr>
 
                     </thead>
@@ -76,6 +78,7 @@
 
                         @foreach (var item in day.OrderBy(x => x.OrderNumber).ThenBy(x => x.WorkoutExerciseId))
                         {
+                            var prescription = item.Prescription;
                             <tr>
 
                                 <td>
@@ -85,10 +88,10 @@
                                     </strong>
 
                                     @if (!string.IsNullOrWhiteSpace(
-                                        item.Note))
+                                        prescription.Note))
                                     {
                                         <div class="small text-muted">
-                                            @item.Note
+                                            @prescription.Note
                                         </div>
                                     }
 
@@ -101,12 +104,12 @@
 
 
                                 <td>
-                                    @item.Sets
+                                    @prescription.Sets
                                 </td>
 
 
                                 <td>
-                                    @item.Reps
+                                    @prescription.Reps
                                 </td>
 
 
@@ -128,25 +131,10 @@
 
                                 <td>
 
-                                    @if (!string.IsNullOrWhiteSpace(
-                                        item.Exercise.VideoUrl))
-                                    {
-                                        <a href="@item.Exercise.VideoUrl"
-                                           target="_blank"
-                                           rel="noopener noreferrer"
-                                           class="btn btn-sm btn-outline-primary">
-
-                                            Xem video
-
-                                        </a>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted">
-                                            Chưa có
-                                        </span>
-                                    }
-
+                                    <partial name="_ExerciseGuide" model='@(new SmartGymBooking.ViewModels.ExerciseGuideViewModel(
+                                        item.Exercise.Name,
+                                        string.IsNullOrWhiteSpace(item.Exercise.Instructions) ? item.Exercise.Description : item.Exercise.Instructions,
+                                        item.Exercise.VideoUrl))' />
                                 </td>
 
                             </tr>

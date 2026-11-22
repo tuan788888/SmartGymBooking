@@ -19,16 +19,16 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     )
 );
 
+#if AI_FEATURES
 builder.Services.AddSingleton<IWorkoutRecommendationService, WorkoutRecommendationService>();
 builder.Services.AddScoped<IWorkoutPlanGeneratorService, WorkoutPlanGeneratorService>();
 builder.Services.AddScoped<DemoAIChatService>();
 builder.Services.AddHttpClient<OpenAIChatService>(client => client.Timeout = TimeSpan.FromSeconds(45));
 builder.Services.AddScoped<IAIChatService, AIChatRouterService>();
+#endif
 
-// Password hashing
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
-// Cookie Authentication
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -41,7 +41,6 @@ builder.Services
         options.Cookie.SameSite = SameSiteMode.Lax;
         options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
 
-        // Account locks and role changes also revoke previously issued cookies.
         options.Events.OnValidatePrincipal = async context =>
         {
             var validId = long.TryParse(context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier), out var userId);
@@ -77,12 +76,10 @@ app.UseStatusCodePagesWithReExecute("/Error/StatusCode/{0}");
 
 app.UseHttpsRedirection();
 
-// Serve uploaded images that are created after the application starts.
 app.UseStaticFiles();
 
 app.UseRouting();
 
-// PHẢI đặt trước UseAuthorization
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -93,7 +90,6 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
-// Hash password seed cũ
 await DbInitializer.InitializeAsync(app.Services);
 
 app.MapGet("/health", () => Results.Ok(new

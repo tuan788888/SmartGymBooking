@@ -1,104 +1,114 @@
 using SmartGymBooking.Models;
 
-namespace SmartGymBooking.Services
+namespace SmartGymBooking.Services;
+
+public interface IAIChatService
 {
-    public class AIChatRouterService
-        : IAIChatService
+    Task<string> GetResponseAsync(
+        Customer customer,
+        string message,
+        List<Aimessage> history,
+        WorkoutPlan? workoutPlan
+    );
+}
+
+public class AIChatRouterService
+    : IAIChatService
+{
+    private readonly IConfiguration _configuration;
+
+    private readonly DemoAIChatService
+        _demoService;
+
+    private readonly OpenAIChatService
+        _openAIService;
+
+    private readonly ILogger<AIChatRouterService>? _logger;
+
+
+    public AIChatRouterService(
+        IConfiguration configuration,
+        DemoAIChatService demoService,
+        OpenAIChatService openAIService,
+        ILogger<AIChatRouterService>? logger = null)
     {
-        private readonly IConfiguration _configuration;
+        _configuration = configuration;
 
-        private readonly DemoAIChatService
-            _demoService;
+        _demoService = demoService;
 
-        private readonly OpenAIChatService
-            _openAIService;
+        _openAIService = openAIService;
+        _logger = logger;
+    }
 
 
-        public AIChatRouterService(
-            IConfiguration configuration,
-            DemoAIChatService demoService,
-            OpenAIChatService openAIService)
+    public async Task<string> GetResponseAsync(
+        Customer customer,
+        string message,
+        List<Aimessage> history,
+        WorkoutPlan? workoutPlan)
+    {
+        var provider =
+            _configuration["AI:Provider"]
+                ?.Trim()
+                .ToUpperInvariant()
+            ?? "DEMO";
+
+
+
+        if (provider == "OPENAI")
         {
-            _configuration = configuration;
-
-            _demoService = demoService;
-
-            _openAIService = openAIService;
-        }
-
-
-        public async Task<string> GetResponseAsync(
-            Customer customer,
-            string message,
-            List<Aimessage> history,
-            WorkoutPlan? workoutPlan)
-        {
-            var provider =
-                _configuration["AI:Provider"]
-                    ?.Trim()
-                    .ToUpperInvariant()
-                ?? "DEMO";
-
-
-            // ============================
-            // OPENAI MODE
-            // ============================
-
-            if (provider == "OPENAI")
+            try
             {
-                try
+                return await _openAIService
+                    .GetResponseAsync(
+                        customer,
+                        message,
+                        history,
+                        workoutPlan
+                    );
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning("OpenAI chat failed: {ErrorType}, HTTP {StatusCode}",
+                    ex.GetType().Name, (ex as HttpRequestException)?.StatusCode);
+                var fallback =
+                    _configuration.GetValue<bool>(
+                        "AI:FallbackToDemo"
+                    );
+
+
+                if (!fallback)
                 {
-                    return await _openAIService
+                    throw;
+                }
+
+
+                var demoResponse =
+                    await _demoService
                         .GetResponseAsync(
                             customer,
                             message,
                             history,
                             workoutPlan
                         );
-                }
-                catch
-                {
-                    var fallback =
-                        _configuration.GetValue<bool>(
-                            "AI:FallbackToDemo"
-                        );
 
 
-                    if (!fallback)
-                    {
-                        throw;
-                    }
-
-
-                    var demoResponse =
-                        await _demoService
-                            .GetResponseAsync(
-                                customer,
-                                message,
-                                history,
-                                workoutPlan
-                            );
-
-
-                    return
-                        "AI Online hiện không khả dụng. " +
-                        "Hệ thống đã chuyển sang Demo AI.\n\n" +
-                        demoResponse;
-                }
+                return
+                    "AI Online hiện không khả dụng. " +
+                    "Hệ thống đã chuyển sang Demo AI.\n\n" +
+                    (ex is AIProviderException providerError ? providerError.UserMessage + "\n\n" : "") +
+                    demoResponse;
             }
-
-
-            // ============================
-            // DEMO MODE - DEFAULT
-            // ============================
-
-            return await _demoService
-                .GetResponseAsync(
-                    customer,
-                    message,
-                    history,
-                    workoutPlan
-                );
         }
+
+
+
+        return await _demoService
+            .GetResponseAsync(
+                customer,
+                message,
+                history,
+                workoutPlan
+            );
     }
 }

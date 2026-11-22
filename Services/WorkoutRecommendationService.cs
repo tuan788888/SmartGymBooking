@@ -1,9 +1,14 @@
+using SmartGymBooking.Models;
 using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
 using SmartGymBooking.MachineLearning;
-using SmartGymBooking.Models;
 
 namespace SmartGymBooking.Services;
+
+public interface IWorkoutRecommendationService
+{
+    Task<string> PredictPlanTypeAsync(Customer customer);
+}
 
 public sealed class WorkoutRecommendationService : IWorkoutRecommendationService, IDisposable
 {

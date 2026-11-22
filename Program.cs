@@ -26,6 +26,9 @@ builder.Services.AddScoped<DemoAIChatService>();
 builder.Services.AddHttpClient<OpenAIChatService>(client => client.Timeout = TimeSpan.FromSeconds(45));
 builder.Services.AddScoped<IAIChatService, AIChatRouterService>();
 #endif
+builder.Services.AddSingleton<TimeProvider>(TimeProvider.System);
+builder.Services.AddScoped<BookingExpirationService>();
+builder.Services.AddHostedService<BookingExpirationWorker>();
 
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 

@@ -11,11 +11,16 @@
     </h2>
 
     <p class="page-subtitle">
-        Chọn Booking đã được xác nhận
+        Chọn lịch đang diễn ra để check-in. Hệ thống tự ghi giờ hiện tại. Phòng mở cửa 06:00–22:00 (giờ Việt Nam).
     </p>
 
 </div>
 
+
+@if (ViewBag.IsGymOpen == false)
+{
+    <div class="alert alert-info">Phòng tập đang đóng cửa.</div>
+}
 
 @if (TempData["ErrorMessage"] != null)
 {
@@ -38,6 +43,7 @@
                     <th>Dịch vụ</th>
                     <th>Bắt đầu</th>
                     <th>Kết thúc</th>
+                    <th>Trạng thái</th>
                     <th></th>
                 </tr>
 
@@ -46,12 +52,12 @@
             <tbody>
                 @if (!Model.Any())
                 {
-                    <tr><td colspan="5" class="text-center text-muted py-4">Không có booking đã xác nhận để check-in.</td></tr>
+                    <tr><td colspan="6" class="text-center text-muted py-4">Không có lịch check-in.</td></tr>
                 }
 
                 @foreach (var booking in Model)
                 {
-                    <tr>
+                    <tr data-booking-id="@booking.BookingId" data-booking-status="@booking.Status">
 
                         <td>
                             @booking.Customer.FullName
@@ -74,21 +80,27 @@
                         </td>
 
                         <td>
+                            @if (booking.Status == "CANCELLED")
+                            {
+                                <span class="badge bg-secondary">Đã hủy check-in</span>
+                                <div class="small text-muted mt-1">Đã quá giờ kết thúc</div>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">Đã xác nhận</span>
+                            }
+                        </td>
 
-                            <form asp-action="CheckIn"
-                                  asp-route-bookingId="@booking.BookingId"
-                                  method="post">
-
-                                @Html.AntiForgeryToken()
-
-                                <button type="submit"
-                                        class="btn btn-sm btn-success">
-
-                                    Check-in
-
-                                </button>
-
-                            </form>
+                        <td>
+                            @if (ViewBag.IsGymOpen == true)
+                            {
+                                <form asp-action="CheckIn"
+                                      asp-route-bookingId="@booking.BookingId"
+                                      method="post">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-success">Check-in</button>
+                                </form>
+                            }
 
                         </td>
 
@@ -102,6 +114,19 @@
     </div>
 
 </div>
+
+@section Scripts {
+    <script>
+        window.setInterval(() => {
+            if (document.visibilityState === 'visible' && !document.querySelector('form[data-submitting]')) {
+                window.location.reload();
+            }
+        }, 30000);
+        document.querySelectorAll('form[method="post"]').forEach(form => {
+            form.addEventListener('submit', () => form.dataset.submitting = 'true');
+        });
+    </script>
+}
 
 
 <div class="mt-3">

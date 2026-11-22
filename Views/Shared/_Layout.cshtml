@@ -5,16 +5,16 @@
     var pageTitle = ViewData["Title"]?.ToString() ?? "SmartGym";
     var email = User.Identity?.Name ?? "";
     var initial = string.IsNullOrWhiteSpace(email) ? "S" : email[..1].ToUpperInvariant();
-    var quickController = User.IsInRole("CUSTOMER") ? "Booking" : "CheckInManagement";
-    var quickLabel = User.IsInRole("CUSTOMER") ? "Đặt lịch tập" : "Check-in khách hàng";
+    var quickController = User.IsInRole("CUSTOMER") ? "Booking" : "BookingManagement";
+    var quickAction = User.IsInRole("CUSTOMER") ? "Create" : "Index";
+    var quickLabel = User.IsInRole("CUSTOMER") ? "Đặt lịch tập" : "Xem lịch đặt của khách";
     var aiCustomer = BuildFeatures.AIEnabled && User.IsInRole("CUSTOMER");
     var nav = new List<(string Controller, string Action, string Label, string Icon, string Group)>();
     if (User.IsInRole("ADMIN"))
     {
         nav.AddRange(new[] {
             ("AdminDashboard", "Index", "Tổng quan", "grid", "KHÔNG GIAN QUẢN LÝ"),
-            ("BookingManagement", "Index", "Đặt lịch", "calendar", "VẬN HÀNH"),
-            ("CheckInManagement", "Index", "Check-in", "check", "VẬN HÀNH"),
+            ("BookingManagement", "Index", "Lịch đặt của khách", "calendar", "VẬN HÀNH"),
             ("PTScheduleManagement", "Index", "Lịch huấn luyện viên", "clock", "VẬN HÀNH"),
             ("PaymentManagement", "Index", "Thanh toán", "wallet", "VẬN HÀNH"),
             ("CustomerManagement", "Index", "Khách hàng", "users", "QUẢN LÝ"),
@@ -29,8 +29,7 @@
     {
         nav.AddRange(new[] {
             ("EmployeeDashboard", "Index", "Tổng quan", "grid", "KHÔNG GIAN NHÂN VIÊN"),
-            ("BookingManagement", "Index", "Đặt lịch", "calendar", "VẬN HÀNH"),
-            ("CheckInManagement", "Index", "Check-in", "check", "VẬN HÀNH"),
+            ("BookingManagement", "Index", "Lịch đặt của khách", "calendar", "VẬN HÀNH"),
             ("PTScheduleManagement", "Index", "Lịch huấn luyện viên", "clock", "VẬN HÀNH"),
             ("PaymentManagement", "Index", "Thanh toán", "wallet", "VẬN HÀNH"),
             ("CustomerManagement", "Index", "Khách hàng", "users", "DANH MỤC"),
@@ -112,7 +111,7 @@
                 <div><span class="topbar-eyebrow">SMARTGYM / @role.ToUpperInvariant()</span><div class="topbar-title">@pageTitle</div></div>
             </div>
             <div class="topbar-actions">
-                <a asp-controller="@quickController" asp-action="Create" class="btn btn-smart-success topbar-quick" aria-label="@quickLabel"><partial name="_Icon" model='@("plus")' /><span>@quickLabel</span></a>
+                <a asp-controller="@quickController" asp-action="@quickAction" class="btn btn-smart-success topbar-quick" aria-label="@quickLabel"><partial name="_Icon" model='@("plus")' /><span>@quickLabel</span></a>
                 <div class="dropdown account-dropdown">
                     <button class="account-button" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Mở menu tài khoản">
                         <span class="account-avatar">@initial</span><span class="account-text"><strong>@email</strong><small>@role</small></span><partial name="_Icon" model='@("chevron")' />

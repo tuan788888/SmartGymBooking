@@ -19,9 +19,6 @@
 </div>
 
 
-<!-- ============================= -->
-<!-- SUMMARY -->
-<!-- ============================= -->
 
 <div class="row g-3 mb-4">
 
@@ -207,13 +204,10 @@
 </div>
 
 
-<!-- ============================= -->
-<!-- CHART -->
-<!-- ============================= -->
 
 <div class="row g-4 mb-4">
 
-    <div class="col-lg-8">
+    <div class="col-xl-8">
 
         <div class="smart-card h-100">
 
@@ -241,7 +235,7 @@
     </div>
 
 
-    <div class="col-lg-4">
+    <div class="col-xl-4">
 
         <div class="smart-card h-100">
 
@@ -271,9 +265,6 @@
 </div>
 
 
-<!-- ============================= -->
-<!-- PAYMENT -->
-<!-- ============================= -->
 
 <div class="smart-card mb-4">
 
@@ -382,9 +373,8 @@
 
 <div class="row g-4">
 
-    <!-- RECENT BOOKING -->
 
-    <div class="col-lg-7">
+    <div class="col-xxl-7">
 
         <div class="smart-card h-100">
 
@@ -453,7 +443,7 @@
                                 </td>
 
                                 <td>
-                                    @booking.Status
+                                    <span class="badge @(booking.Status switch { "COMPLETED" => "bg-success", "CONFIRMED" => "bg-primary", "PENDING" => "bg-warning", _ => "bg-secondary" })">@booking.Status</span>
                                 </td>
 
                             </tr>
@@ -470,9 +460,8 @@
     </div>
 
 
-    <!-- PT -->
 
-    <div class="col-lg-5">
+    <div class="col-xxl-5">
 
         <div class="smart-card h-100">
 
@@ -553,6 +542,10 @@
 
     <script>
 
+        Chart.defaults.font.family = "'Times New Roman', Times, serif";
+        Chart.defaults.font.size = 16;
+        Chart.defaults.color = '#7a8980';
+
         const revenueLabels =
             @Html.Raw(
                 JsonSerializer.Serialize(
@@ -583,7 +576,11 @@
                         {
                             label: 'Doanh thu (VNĐ)',
                             data: revenueValues,
-                            borderWidth: 1
+                            backgroundColor: '#8ebba0',
+                            hoverBackgroundColor: '#1b865b',
+                            borderRadius: 5,
+                            maxBarThickness: 42,
+                            borderWidth: 0
                         }
                     ]
                 },
@@ -618,14 +615,17 @@
                 data: {
 
                     labels: [
-                        'Pending',
-                        'Confirmed',
-                        'Completed',
-                        'Cancelled'
+                        'Chờ xác nhận',
+                        'Đã xác nhận',
+                        'Hoàn thành',
+                        'Đã hủy'
                     ],
 
                     datasets: [
                         {
+                            backgroundColor: ['#e5b65c', '#287153', '#a7cd95', '#e0e8e1'],
+                            borderColor: '#ffffff',
+                            borderWidth: 3,
                             data: [
                                 @Model.PendingBookings,
                                 @Model.ConfirmedBookings,
@@ -638,7 +638,9 @@
 
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false
+                    maintainAspectRatio: false,
+                    cutout: '72%',
+                    plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 7, padding: 18, font: { size: 14 } } } }
                 }
             }
         );

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace SmartGymBooking.Models;
@@ -24,6 +24,10 @@ public partial class Payment
     public DateTime? PaidAt { get; set; }
 
     public DateTime? ConfirmedAt { get; set; }
+
+    public string? BankReference { get; set; }
+
+    public long? ReconciledByUserId { get; set; }
 
     public virtual Customer Customer { get; set; } = null!;
 

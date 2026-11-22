@@ -107,13 +107,13 @@
 
                         <td>
 
-                            @if (schedule.Status == "SCHEDULED")
+                            @if (schedule.EffectiveStatus == "SCHEDULED")
                             {
                                 <span class="badge bg-primary">
                                     Scheduled
                                 </span>
                             }
-                            else if (schedule.Status == "COMPLETED")
+                            else if (schedule.EffectiveStatus == "COMPLETED")
                             {
                                 <span class="badge bg-success">
                                     Completed
@@ -122,7 +122,7 @@
                             else
                             {
                                 <span class="badge bg-secondary">
-                                    @schedule.Status
+                                    @schedule.EffectiveStatus
                                 </span>
                             }
 
@@ -138,7 +138,7 @@
 
                             <div class="d-flex gap-2">
 
-                                @if (schedule.Status == "SCHEDULED")
+                                @if (schedule.EffectiveStatus == "SCHEDULED")
                                 {
                                     @if (schedule.EndTime <= DateTime.Now) {
 <form asp-action="Complete"

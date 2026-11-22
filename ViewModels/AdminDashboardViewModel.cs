@@ -4,7 +4,6 @@ namespace SmartGymBooking.ViewModels
 {
     public class AdminDashboardViewModel
     {
-        // Summary cards
         public int TotalCustomers { get; set; }
 
         public int ActiveCustomers { get; set; }
@@ -26,7 +25,6 @@ namespace SmartGymBooking.ViewModels
         public int UpcomingPTSchedules { get; set; }
 
 
-        // Revenue chart
         public List<string> MonthlyRevenueLabels { get; set; }
             = new();
 
@@ -34,7 +32,6 @@ namespace SmartGymBooking.ViewModels
             = new();
 
 
-        // Booking status chart
         public int PendingBookings { get; set; }
 
         public int ConfirmedBookings { get; set; }
@@ -44,7 +41,6 @@ namespace SmartGymBooking.ViewModels
         public int CancelledBookings { get; set; }
 
 
-        // Recent data
         public List<Payment> RecentPayments { get; set; }
             = new();
 

@@ -23,8 +23,9 @@
 
                 <div class="alert alert-info">
 
-                    Lịch PT chỉ được tạo từ hiện tại
-                    đến tối đa 14 ngày tiếp theo.
+                    @(Model.BookingId.HasValue
+                        ? "Giờ PT được lấy từ lịch khách đã đặt."
+                        : "Lịch PT riêng chỉ được tạo tối đa 14 ngày tới, trong giờ 06:00–22:00 (giờ Việt Nam).")
 
                 </div>
 
@@ -40,6 +41,14 @@
                     @Html.AntiForgeryToken()
 
 
+                    @if (Model.BookingId.HasValue)
+                    {
+                        <input asp-for="BookingId" type="hidden" />
+                        <input asp-for="CustomerId" type="hidden" />
+                        <p class="mb-3"><strong>Khách hàng</strong> @ViewBag.BookingCustomer</p>
+                    }
+                    else
+                    {
                     <div class="mb-3">
 
                         <label asp-for="CustomerId"
@@ -65,6 +74,8 @@
 
                     </div>
 
+
+                    }
 
                     <div class="mb-3">
 
@@ -104,7 +115,7 @@
                             </label>
 
                             <input asp-for="StartTime"
-                                   type="datetime-local"
+                                   type="datetime-local" readonly="@Model.BookingId.HasValue"
                                    class="form-control" />
 
                             <span asp-validation-for="StartTime"
@@ -124,7 +135,7 @@
                             </label>
 
                             <input asp-for="EndTime"
-                                   type="datetime-local"
+                                   type="datetime-local" readonly="@Model.BookingId.HasValue"
                                    class="form-control" />
 
                             <span asp-validation-for="EndTime"

@@ -11,7 +11,6 @@
 
         <div class="row g-4">
 
-            <!-- PAYMENT INFO -->
             <div class="col-lg-6">
 
                 <div class="smart-card h-100">
@@ -23,7 +22,7 @@
                         </span>
 
                         <h2 class="mb-4">
-                            Thanh toán gói tập
+                            @(Model.IsUpgrade ? "Thanh toán nâng cấp gói PT" : "Thanh toán gói tập")
                         </h2>
 
 
@@ -47,7 +46,7 @@
                             </div>
 
                             <strong>
-                                @Model.DurationDays ngày
+                                @(Model.UpgradeEndsAt is DateTime expires ? $"Đến {expires:dd/MM/yyyy HH:mm}" : $"{Model.DurationDays} ngày")
                             </strong>
 
                         </div>
@@ -83,16 +82,31 @@
                         </div>
 
                         <h2 class="fw-bold">
-                            @Model.Amount.ToString("N0") đ
+                            @Model.Amount.ToString("#,0.##") đ
                         </h2>
 
 
+                        @if (Model.IsUpgrade)
+                        {
+                            <p class="text-success">Đã áp dụng giá ưu đãi nâng cấp gói PT.</p>
+                        }
+                        @if (Model.PaymentError is string paymentError)
+                        {
+                            <div class="alert alert-warning mt-4" role="alert">@paymentError</div>
+                        }
+                        else if (Model.Status == "CANCELLED")
+                        {
+                            <div class="alert alert-secondary mt-4">Giao dịch đã hủy. Nếu bạn đã chuyển khoản, hãy liên hệ phòng gym để đối soát.</div>
+                        }
+                        else if (Model.Status == "PENDING")
+                        {
                         <div class="alert alert-warning mt-4">
 
-                            Sau khi chuyển khoản,
-                            vui lòng chờ nhân viên xác nhận.
+                            Giao dịch cần được xác nhận trước <strong>@Model.ConfirmationDeadline.ToString("dd/MM/yyyy HH:mm")</strong>.
+                            Yêu cầu sẽ tự hủy khi quá hạn. Nếu đã chuyển khoản mà giao dịch bị hủy, hãy liên hệ phòng gym để đối soát.
 
                         </div>
+                        }
 
                     </div>
 
@@ -101,7 +115,6 @@
             </div>
 
 
-            <!-- QR -->
             <div class="col-lg-6">
 
                 <div class="smart-card h-100">
@@ -112,7 +125,7 @@
                             Quét mã QR
                         </h4>
 
-                        @if (Model.Status == "PENDING")
+                        @if (Model.Status == "PENDING" && Model.PaymentError == null)
                         {
                         @if (System.IO.File.Exists(System.IO.Path.Combine(Environment.WebRootPath, "images", "payment", "bank-qr.jpg")))
                         {
@@ -126,7 +139,7 @@
                             <dt>Chủ tài khoản</dt><dd>LE ANH TUAN</dd>
                             <dt>Số tài khoản</dt><dd>1041192956</dd>
                         </dl>
-                        <p>Nhập số tiền @Model.Amount.ToString("N0") đ và nội dung bên dưới khi chuyển khoản.</p>
+                        <p>Nhập số tiền @Model.Amount.ToString("#,0.##") đ và nội dung bên dưới khi chuyển khoản.</p>
 
 
                         <div class="mt-4">
@@ -155,7 +168,7 @@
                         }
                         else
                         {
-                            <p>Giao dịch này đã kết thúc. Không chuyển khoản cho giao dịch này.</p>
+                            <p>Giao dịch này hiện không thể thanh toán.</p>
                         }
 
                     </div>

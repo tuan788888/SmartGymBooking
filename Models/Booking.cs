@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace SmartGymBooking.Models;
@@ -22,6 +22,8 @@ public partial class Booking
     public DateTime CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
+
+    public virtual ICollection<Ptschedule> Ptschedules { get; set; } = new List<Ptschedule>();
 
     public virtual CheckIn? CheckIn { get; set; }
 

@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = "Lịch của tôi";
+    var now = SmartGymBooking.Services.GymTime.Now;
+    var isOpen = SmartGymBooking.Services.GymTime.IsOpen(now);
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -13,7 +15,7 @@
         </h2>
 
         <p class="page-subtitle">
-            Theo dõi các lịch tập đã đặt
+            Theo dõi lịch đã đặt và tự check-in trong giờ tập. Phòng mở cửa 06:00–22:00 (giờ Việt Nam).
         </p>
 
     </div>
@@ -80,6 +82,10 @@
                             <strong>
                                 @booking.Service.Name
                             </strong>
+                            @if (booking.Status != "CANCELLED" && booking.Ptschedules.FirstOrDefault() is { } ptSchedule)
+                            {
+                                <div class="small text-muted">PT: @ptSchedule.Pt.FullName</div>
+                            }
                         </td>
 
 
@@ -117,6 +123,10 @@
                                     Hoàn thành
                                 </span>
                             }
+                            else if (booking.Status == "CANCELLED")
+                            {
+                                <span class="badge bg-secondary">Đã hủy</span>
+                            }
                             else
                             {
                                 <span class="badge bg-secondary">
@@ -129,11 +139,22 @@
 
                         <td>
 
-                            @if (
+                            @if (booking.CheckIn != null)
+                            {
+                                <span class="badge bg-success">Đã check-in @booking.CheckIn.CheckInTime.ToString("HH:mm")</span>
+                            }
+                            else if (isOpen && booking.Status == "CONFIRMED" && booking.StartTime <= now && booking.EndTime > now)
+                            {
+                                <form asp-action="CheckIn" method="post">
+                                    <input type="hidden" name="bookingId" value="@booking.BookingId" />
+                                    <button type="submit" class="btn btn-sm btn-success">Tự check-in</button>
+                                </form>
+                            }
+                            else if (
                                 (booking.Status == "PENDING" ||
                                  booking.Status == "CONFIRMED")
                                 &&
-                                booking.StartTime > DateTime.Now)
+                                booking.StartTime > now)
                             {
                                 <form asp-action="Cancel"
                                       asp-route-id="@booking.BookingId"

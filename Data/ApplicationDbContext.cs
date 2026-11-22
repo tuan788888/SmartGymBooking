@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using SmartGymBooking.Models;
@@ -255,6 +255,12 @@ public partial class ApplicationDbContext : DbContext
             entity.HasIndex(e => e.PackageId, "IX_Payments_PackageId");
 
             entity.HasIndex(e => e.Status, "IX_Payments_Status");
+            entity.HasIndex(e => e.BankReference, "UX_Payments_BankReference")
+                .IsUnique().HasFilter("[BankReference] IS NOT NULL");
+            entity.Property(e => e.BankReference).HasMaxLength(100);
+            entity.HasOne<User>().WithMany().HasForeignKey(e => e.ReconciledByUserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Payments_ReconciledBy");
 
             entity.HasIndex(e => e.PaymentCode, "UQ_Payments_PaymentCode").IsUnique();
 
@@ -310,6 +316,14 @@ public partial class ApplicationDbContext : DbContext
             entity.HasKey(e => e.PtscheduleId).HasName("PK__PTSchedu__D9A744959089B307");
 
             entity.ToTable("PTSchedules");
+
+            entity.HasIndex(e => e.BookingId, "UX_PTSchedules_ScheduledBooking")
+                .IsUnique().HasFilter("[BookingId] IS NOT NULL AND [Status] = N'SCHEDULED'");
+
+            entity.HasOne(d => d.Booking).WithMany(b => b.Ptschedules)
+                .HasForeignKey(d => d.BookingId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PTSchedules_Bookings");
 
             entity.HasIndex(e => e.CustomerId, "IX_PTSchedules_CustomerId");
 

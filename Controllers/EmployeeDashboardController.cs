@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SmartGymBooking.Data;
+using SmartGymBooking.Services;
 using SmartGymBooking.ViewModels;
 
 namespace SmartGymBooking.Controllers
@@ -21,7 +22,8 @@ namespace SmartGymBooking.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var today = DateTime.Today;
+            var now = GymTime.Now;
+            var today = now.Date;
 
             var tomorrow =
                 today.AddDays(1);
@@ -56,10 +58,7 @@ namespace SmartGymBooking.Controllers
 
 
             model.PendingPayments =
-                await _context.Payments.AsNoTracking()
-                    .CountAsync(p =>
-                        p.Status == "PENDING"
-                    );
+                await PackagePurchase.AwaitingConfirmation(_context.Payments.AsNoTracking(), now).CountAsync();
 
 
             model.TodayPTSchedules =
@@ -67,7 +66,7 @@ namespace SmartGymBooking.Controllers
                     .CountAsync(s =>
                         s.StartTime >= today &&
                         s.StartTime < tomorrow &&
-                        s.Status == "SCHEDULED"
+                        s.Status == "SCHEDULED" && (s.Booking == null || s.Booking.Status != "CANCELLED")
                     );
 
 
@@ -79,7 +78,7 @@ namespace SmartGymBooking.Controllers
                     .Include(b => b.Service)
 
                     .Where(b =>
-                        b.StartTime >= DateTime.Now &&
+                        b.StartTime >= now &&
                         b.Status != "CANCELLED"
                     )
 
@@ -92,15 +91,12 @@ namespace SmartGymBooking.Controllers
 
 
             model.PendingPaymentList =
-                await _context.Payments.AsNoTracking()
+                await PackagePurchase.AwaitingConfirmation(_context.Payments.AsNoTracking(), now)
 
                     .Include(p => p.Customer)
 
                     .Include(p => p.Package)
 
-                    .Where(p =>
-                        p.Status == "PENDING"
-                    )
 
                     .OrderBy(
                         p => p.CreatedAt)

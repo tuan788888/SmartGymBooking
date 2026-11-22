@@ -53,6 +53,7 @@
     }
 
 
+    @{ var now = SmartGymBooking.Services.GymTime.Now; }
     @foreach (var membership in Model)
     {
         <div class="col-lg-6">
@@ -83,8 +84,8 @@
 
                         @if (membership.Status == "ACTIVE")
                         {
-                            <span class="badge badge-soft-success">
-                                Active
+                            <span class="badge @(membership.StartDate <= now && membership.EndDate > now ? "badge-soft-success" : "bg-secondary")">
+                                @(membership.EndDate <= now ? "Đã hết hạn" : membership.StartDate > now ? "Chưa bắt đầu" : "Đang hoạt động")
                             </span>
                         }
                         else

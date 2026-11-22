@@ -111,7 +111,7 @@
 
                         <strong>Trạng thái:</strong>
 
-                        <span class="badge @(schedule.Status switch { "COMPLETED" => "bg-success", "SCHEDULED" => "bg-primary", _ => "bg-secondary" })">@schedule.Status</span>
+                        <span class="badge @(schedule.EffectiveStatus switch { "COMPLETED" => "bg-success", "SCHEDULED" => "bg-primary", _ => "bg-secondary" })">@schedule.EffectiveStatus</span>
 
                     </p>
 

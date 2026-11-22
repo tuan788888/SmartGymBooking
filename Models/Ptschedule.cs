@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace SmartGymBooking.Models;
@@ -6,6 +6,8 @@ namespace SmartGymBooking.Models;
 public partial class Ptschedule
 {
     public long PtscheduleId { get; set; }
+
+    public long? BookingId { get; set; }
 
     public long Ptid { get; set; }
 
@@ -22,6 +24,10 @@ public partial class Ptschedule
     public DateTime CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
+
+    public virtual Booking? Booking { get; set; }
+
+    public string EffectiveStatus => Booking?.Status == "CANCELLED" && Status == "SCHEDULED" ? "CANCELLED" : Status;
 
     public virtual Customer Customer { get; set; } = null!;
 

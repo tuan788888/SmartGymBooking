@@ -1,19 +1,24 @@
 @model IEnumerable<SmartGymBooking.Models.Booking>
 
 @{
-    ViewData["Title"] = "Quản lý Booking";
+    ViewData["Title"] = "Lịch đặt của khách hàng";
+    var canAssignPt = (HashSet<long>)ViewBag.CanAssignPt;
 }
 
 <div class="mb-4">
 
     <h2 class="page-title">
-        Booking
+        Lịch đặt của khách hàng
     </h2>
 
     <p class="page-subtitle">
-        Quản lý lịch đặt dịch vụ của khách hàng
+        Theo dõi lịch đặt, phân PT và ghi nhận khách đến tập.
     </p>
 
+    <div class="d-flex gap-2 flex-wrap">
+        <a asp-controller="CheckInManagement" asp-action="Create" class="btn btn-outline-primary">Ghi nhận khách đến tập</a>
+        <a asp-controller="CheckInManagement" asp-action="Index" class="btn btn-outline-secondary">Lịch sử check-in</a>
+    </div>
 </div>
 
 
@@ -38,6 +43,7 @@
 
         <form method="get"
               class="row g-2">
+            <input type="hidden" name="customerId" value="@ViewBag.CustomerId" />
 
             <div class="col-md-4">
 
@@ -144,15 +150,23 @@
                         </td>
 
                         <td>
-                            <span class="badge @(booking.Status switch { "COMPLETED" => "bg-success", "PENDING" => "bg-warning text-dark", "CONFIRMED" => "bg-primary", _ => "bg-secondary" })">@booking.Status</span>
+                            <span class="badge @(booking.Status switch { "COMPLETED" => "bg-success", "PENDING" => "bg-warning text-dark", "CONFIRMED" => "bg-primary", _ => "bg-secondary" })">@(booking.Status switch { "COMPLETED" => "Hoàn thành", "PENDING" => "Chờ xác nhận", "CONFIRMED" => "Đã xác nhận", "CANCELLED" => "Đã hủy", _ => booking.Status })</span>
                         </td>
 
 
                         <td>
 
-                            <div class="d-flex gap-2">
+                            <div class="d-flex gap-2 flex-wrap">
+                                @if (booking.Status != "CANCELLED" && booking.Ptschedules.FirstOrDefault() is { } ptSchedule)
+                                {
+                                    <span class="badge bg-info text-dark align-self-center">PT: @ptSchedule.Pt.FullName</span>
+                                }
+                                else if (canAssignPt.Contains(booking.BookingId))
+                                {
+                                    <a asp-controller="PTScheduleManagement" asp-action="Create" asp-route-bookingId="@booking.BookingId" class="btn btn-sm btn-outline-primary">Phân PT</a>
+                                }
 
-                                @if (booking.Status == "PENDING" && booking.StartTime > DateTime.Now)
+                                @if (booking.Status == "PENDING" && booking.StartTime > SmartGymBooking.Services.GymTime.Now)
                                 {
                                     <form asp-action="Confirm"
                                           asp-route-id="@booking.BookingId"
@@ -168,7 +182,7 @@
                                 }
 
 
-                                @if (booking.Status == "CONFIRMED" && booking.EndTime <= DateTime.Now)
+                                @if (booking.Status == "CONFIRMED" && booking.CheckIn != null && booking.EndTime <= SmartGymBooking.Services.GymTime.Now)
                                 {
                                     <form asp-action="Complete"
                                           asp-route-id="@booking.BookingId"
@@ -185,6 +199,7 @@
 
 
                                 @if (
+                                    booking.CheckIn == null &&
                                     booking.Status != "COMPLETED" &&
                                     booking.Status != "CANCELLED")
                                 {

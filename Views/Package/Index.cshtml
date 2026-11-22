@@ -1,4 +1,4 @@
-@model IEnumerable<SmartGymBooking.Models.Package>
+@model IEnumerable<SmartGymBooking.ViewModels.PackageOption>
 
 @{
     ViewData["Title"] = "Gói tập";
@@ -24,8 +24,14 @@
         <div class="col-12 text-center text-muted">Hiện chưa có gói tập đang hoạt động.</div>
     }
 
-    @foreach (var package in Model)
+    @if (TempData["ErrorMessage"] is string purchaseError)
     {
+        <div class="col-12"><div class="alert alert-warning" role="alert">@purchaseError</div></div>
+    }
+    @foreach (var option in Model)
+    {
+        var package = option.Package;
+        var upgrade = option.Quote.UpgradeFrom != null;
         <div class="col-lg-4 col-md-6">
 
             <div class="smart-card h-100">
@@ -41,7 +47,7 @@
                     else
                     {
                         <span class="badge bg-secondary mb-3">
-                            AI Virtual PT
+                            @(BuildFeatures.AIEnabled ? "AI Virtual PT" : "Tập luyện tự do")
                         </span>
                     }
 
@@ -53,7 +59,7 @@
 
                     <h2 class="fw-bold my-3">
 
-                        @package.Price.ToString("N0")
+                        @((upgrade ? option.Quote.Amount : package.Price).ToString("#,0.##"))
 
                         <small class="fs-6 text-muted">
                             đ
@@ -74,7 +80,21 @@
 
                     @if (User.IsInRole("CUSTOMER"))
                     {
-                        <form asp-controller="Payment" asp-action="Create" method="post" class="mt-3"><input type="hidden" name="packageId" value="@package.PackageId" /><button type="submit" class="btn btn-smart-success w-100">Chọn gói</button></form>
+                        @if (option.Quote.Error is string reason)
+                        {
+                            <p class="text-muted small mb-0">@reason</p>
+                        }
+                        else
+                        {
+                            @if (upgrade)
+                            {
+                                <p class="small">Giảm @(SmartGymBooking.Services.PackagePurchase.UpgradeDiscountPercent)% từ @package.Price.ToString("#,0.##") đ. Gói PT có hiệu lực đến @option.Quote.EndDate.ToString("dd/MM/yyyy HH:mm").</p>
+                            }
+                            <form asp-controller="Payment" asp-action="Create" method="post" class="mt-3">
+                                <input type="hidden" name="packageId" value="@package.PackageId" />
+                                <button type="submit" class="btn btn-smart-success w-100">@(upgrade ? "Nâng cấp gói PT" : "Chọn gói")</button>
+                            </form>
+                        }
                     }
                     else if (User.Identity?.IsAuthenticated != true)
                     {

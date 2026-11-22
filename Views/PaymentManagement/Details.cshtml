@@ -21,6 +21,11 @@
 
             <div class="card-body">
 
+                @if (TempData["ErrorMessage"] is string paymentError)
+                {
+                    <div class="alert alert-warning" role="alert">@paymentError</div>
+                }
+
                 @if (TempData["SuccessMessage"] != null)
                 {
                     <div class="alert alert-success">
@@ -62,7 +67,7 @@
                             <strong>Số tiền:</strong><br />
 
                             <span class="fs-4 fw-bold">
-                                @Model.Amount.ToString("N0") đ
+                                @Model.Amount.ToString("#,0.##") đ
                             </span>
                         </p>
 
@@ -125,6 +130,40 @@
                     </div>
                 }
 
+
+                @if (Model.BankReference is string reference)
+                {
+                    <div class="alert alert-info">
+                        Đã đối soát theo mã ngân hàng <strong>@reference</strong>.
+                        Admin xử lý #@Model.ReconciledByUserId
+                        lúc @Model.ConfirmedAt?.ToString("dd/MM/yyyy HH:mm").
+                    </div>
+                }
+                else if (User.IsInRole("ADMIN") && Model.Status == "CANCELLED" &&
+                    (Model.PaidAt ?? Model.CreatedAt) <= SmartGymBooking.Services.GymTime.Now -
+                        SmartGymBooking.Services.PackagePurchase.ConfirmationWindow)
+                {
+                    <hr />
+                    <h5>Đối soát giao dịch đã hủy</h5>
+                    <p class="text-muted">Chỉ thực hiện sau khi kiểm tra trực tiếp giao dịch trên sao kê ngân hàng.</p>
+                    <form asp-action="Reconcile" asp-route-id="@Model.PaymentId" method="post" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="bankReference" class="form-label">Mã tham chiếu ngân hàng</label>
+                            <input id="bankReference" name="bankReference" class="form-control" maxlength="100" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label for="receivedAmount" class="form-label">Số tiền thực nhận (đ)</label>
+                            <input id="receivedAmount" name="receivedAmount" class="form-control" type="number" min="1" step="1" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label for="receivedAt" class="form-label">Giờ chuyển khoản (giờ Việt Nam)</label>
+                            <input id="receivedAt" name="receivedAt" class="form-control" type="datetime-local" required />
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-success">Xác nhận đối soát</button>
+                        </div>
+                    </form>
+                }
 
                 <div class="mt-4">
 

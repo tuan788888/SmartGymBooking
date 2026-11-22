@@ -9,6 +9,11 @@ namespace SmartGymBooking.ViewModels
         public string PackageName { get; set; } = string.Empty;
 
         public decimal Amount { get; set; }
+        public bool IsUpgrade { get; set; }
+        public DateTime? UpgradeEndsAt { get; set; }
+        public DateTime ConfirmationDeadline { get; set; }
+
+        public string? PaymentError { get; set; }
 
         public string PaymentCode { get; set; } = string.Empty;
 

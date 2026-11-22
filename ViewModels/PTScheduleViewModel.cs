@@ -5,6 +5,8 @@ namespace SmartGymBooking.ViewModels
 {
     public class PTScheduleViewModel
     {
+        public long? BookingId { get; set; }
+
         public long PTScheduleId { get; set; }
 
         [Required(ErrorMessage = "Vui lòng chọn PT.")]

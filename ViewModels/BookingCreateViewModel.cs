@@ -10,10 +10,10 @@ namespace SmartGymBooking.ViewModels
         public long ServiceId { get; set; }
 
         [Required(ErrorMessage = "Vui lòng chọn thời gian bắt đầu.")]
-        public DateTime StartTime { get; set; }
+        public DateTime? StartTime { get; set; }
 
         [Required(ErrorMessage = "Vui lòng chọn thời gian kết thúc.")]
-        public DateTime EndTime { get; set; }
+        public DateTime? EndTime { get; set; }
 
         public List<SelectListItem> Services { get; set; }
             = new();

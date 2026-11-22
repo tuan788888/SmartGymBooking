@@ -46,6 +46,7 @@ namespace SmartGymBooking.Controllers
             var schedules =
                 await _context.Ptschedules
                     .Include(s => s.Pt)
+                    .Include(s => s.Booking)
                     .Where(s =>
                         s.CustomerId ==
                         customer.CustomerId)

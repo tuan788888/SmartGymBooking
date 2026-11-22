@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SmartGymBooking.Data;
+using SmartGymBooking.Services;
 using SmartGymBooking.ViewModels;
 
 namespace SmartGymBooking.Controllers
@@ -20,9 +21,10 @@ namespace SmartGymBooking.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var now = DateTime.Now;
+            var now = GymTime.Now;
 
-            var today = DateTime.Today;
+
+            var today = now.Date;
 
             var tomorrow = today.AddDays(1);
 
@@ -44,9 +46,6 @@ namespace SmartGymBooking.Controllers
                 new AdminDashboardViewModel();
 
 
-            // =====================================
-            // CUSTOMER
-            // =====================================
 
             model.TotalCustomers =
                 await _context.Customers
@@ -60,9 +59,6 @@ namespace SmartGymBooking.Controllers
                     );
 
 
-            // =====================================
-            // PT
-            // =====================================
 
             model.TotalPTs =
                 await _context.Pts
@@ -76,9 +72,6 @@ namespace SmartGymBooking.Controllers
                     );
 
 
-            // =====================================
-            // MEMBERSHIP
-            // =====================================
 
             model.ActiveMemberships =
                 await _context.Memberships
@@ -87,9 +80,6 @@ namespace SmartGymBooking.Controllers
                     );
 
 
-            // =====================================
-            // BOOKING TODAY
-            // =====================================
 
             model.TodayBookings =
                 await _context.Bookings.AsNoTracking()
@@ -100,9 +90,6 @@ namespace SmartGymBooking.Controllers
                     );
 
 
-            // =====================================
-            // CHECK-IN TODAY
-            // =====================================
 
             model.TodayCheckIns =
                 await _context.CheckIns
@@ -112,15 +99,9 @@ namespace SmartGymBooking.Controllers
                     );
 
 
-            // =====================================
-            // PAYMENT
-            // =====================================
 
             model.PendingPayments =
-                await _context.Payments.AsNoTracking()
-                    .CountAsync(p =>
-                        p.Status == "PENDING"
-                    );
+                await PackagePurchase.AwaitingConfirmation(_context.Payments.AsNoTracking(), now).CountAsync();
 
 
             model.RevenueThisMonth =
@@ -137,22 +118,16 @@ namespace SmartGymBooking.Controllers
                 ?? 0;
 
 
-            // =====================================
-            // PT SCHEDULE
-            // =====================================
 
             model.UpcomingPTSchedules =
                 await _context.Ptschedules.AsNoTracking()
                     .CountAsync(s =>
                         s.StartTime >= now &&
                         s.StartTime <= maxPTDate &&
-                        s.Status == "SCHEDULED"
+                        s.Status == "SCHEDULED" && (s.Booking == null || s.Booking.Status != "CANCELLED")
                     );
 
 
-            // =====================================
-            // BOOKING STATUS CHART
-            // =====================================
 
             model.PendingBookings =
                 await _context.Bookings.AsNoTracking()
@@ -182,9 +157,6 @@ namespace SmartGymBooking.Controllers
                     );
 
 
-            // =====================================
-            // REVENUE LAST 6 MONTHS
-            // =====================================
 
             var firstChartMonth =
                 startOfMonth.AddMonths(-5);
@@ -237,12 +209,12 @@ namespace SmartGymBooking.Controllers
             }
 
 
-            // =====================================
-            // RECENT PAYMENTS
-            // =====================================
 
+            var paymentCutoff = now - PackagePurchase.ConfirmationWindow;
             model.RecentPayments =
                 await _context.Payments.AsNoTracking()
+                    .Where(p => p.Status != "CANCELLED" &&
+                        (p.Status != "PENDING" || (p.PaidAt ?? p.CreatedAt) > paymentCutoff))
 
                     .Include(p => p.Customer)
 
@@ -256,9 +228,6 @@ namespace SmartGymBooking.Controllers
                     .ToListAsync();
 
 
-            // =====================================
-            // RECENT BOOKINGS
-            // =====================================
 
             model.RecentBookings =
                 await _context.Bookings.AsNoTracking()
@@ -275,9 +244,6 @@ namespace SmartGymBooking.Controllers
                     .ToListAsync();
 
 
-            // =====================================
-            // UPCOMING PT SCHEDULE
-            // =====================================
 
             model.UpcomingSchedules =
                 await _context.Ptschedules.AsNoTracking()
@@ -289,7 +255,7 @@ namespace SmartGymBooking.Controllers
                     .Where(s =>
                         s.StartTime >= now &&
                         s.StartTime <= maxPTDate &&
-                        s.Status == "SCHEDULED"
+                        s.Status == "SCHEDULED" && (s.Booking == null || s.Booking.Status != "CANCELLED")
                     )
 
                     .OrderBy(s => s.StartTime)

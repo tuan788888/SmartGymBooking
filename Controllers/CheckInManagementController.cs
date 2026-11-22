@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SmartGymBooking.Data;
 using SmartGymBooking.Models;
+using SmartGymBooking.Services;
 
 namespace SmartGymBooking.Controllers
 {
@@ -10,17 +12,18 @@ namespace SmartGymBooking.Controllers
     public class CheckInManagementController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly BookingExpirationService _expiration;
+        private readonly TimeProvider _timeProvider;
 
         public CheckInManagementController(
-            ApplicationDbContext context)
+            ApplicationDbContext context, BookingExpirationService expiration, TimeProvider timeProvider)
         {
             _context = context;
+            _expiration = expiration;
+            _timeProvider = timeProvider;
         }
 
 
-        // =========================================
-        // DANH SÁCH CHECK-IN
-        // =========================================
 
         public async Task<IActionResult> Index()
         {
@@ -31,108 +34,93 @@ namespace SmartGymBooking.Controllers
                 .OrderByDescending(c => c.CheckInTime)
                 .ToListAsync();
 
+            var now = GymTime.FromUtc(_timeProvider.GetUtcNow());
+            ViewBag.WalkInCustomers = await _context.Customers.AsNoTracking()
+                .Where(c => c.User.IsActive && c.Memberships.Any(m =>
+                    m.Status == "ACTIVE" && m.StartDate <= now && m.EndDate > now))
+                .OrderBy(c => c.FullName)
+                .Select(c => new SelectListItem(c.FullName + " – " + c.User.Email, c.CustomerId.ToString()))
+                .ToListAsync();
+
             return View(checkIns);
         }
 
 
-        // =========================================
-        // DANH SÁCH BOOKING CÓ THỂ CHECK-IN
-        // =========================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> WalkIn(long customerId)
+        {
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+            await PackagePurchase.LockCustomerAsync(_context, customerId);
+
+            var now = GymTime.FromUtc(_timeProvider.GetUtcNow());
+            if (!GymTime.IsOpen(now))
+            {
+                TempData["ErrorMessage"] = GymTime.HoursMessage;
+                return RedirectToAction(nameof(Index));
+            }
+
+            var customer = await _context.Customers.AsNoTracking().Where(c => c.CustomerId == customerId && c.User.IsActive)
+                .Select(c => new { c.FullName, HasMembership = c.Memberships.Any(m =>
+                    m.Status == "ACTIVE" && m.StartDate <= now && m.EndDate > now) })
+                .SingleOrDefaultAsync();
+            if (customer == null || !customer.HasMembership)
+                TempData["ErrorMessage"] = "Chọn khách hàng có tài khoản và gói tập đang hoạt động.";
+            else if (await _context.Bookings.AnyAsync(b => b.CustomerId == customerId &&
+                b.Status == "CONFIRMED" && b.StartTime <= now && b.EndTime > now))
+                TempData["ErrorMessage"] = "Khách đang có lịch tập trong khung giờ này. Hãy check-in theo lịch đặt.";
+            else if (await _context.CheckIns.AnyAsync(c => c.CustomerId == customerId && c.BookingId == null &&
+                c.CheckInTime >= now.Date && c.CheckInTime < now.Date.AddDays(1)))
+                TempData["ErrorMessage"] = "Khách đã được check-in trực tiếp hôm nay.";
+            else
+            {
+                _context.CheckIns.Add(new CheckIn
+                {
+                    CustomerId = customerId,
+                    CheckInTime = now,
+                    CreatedAt = now,
+                    Note = "Check-in trực tiếp tại quầy"
+                });
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                TempData["SuccessMessage"] = $"Đã check-in trực tiếp cho {customer.FullName}.";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
 
         [HttpGet]
         public async Task<IActionResult> Create()
         {
+            await _expiration.CancelExpiredAsync(cancellationToken: HttpContext.RequestAborted);
+            var now = GymTime.FromUtc(_timeProvider.GetUtcNow());
             var bookings = await _context.Bookings
                 .Include(b => b.Customer)
                 .Include(b => b.Service)
-                .Where(b =>
-                    b.Status == "CONFIRMED" &&
-                    !_context.CheckIns.Any(
-                        c => c.BookingId == b.BookingId
-                    )
-                )
+                .Where(b => b.Status == "CONFIRMED" && b.StartTime <= now && b.EndTime > now &&
+                    !_context.CheckIns.Any(c => c.BookingId == b.BookingId))
                 .OrderBy(b => b.StartTime)
                 .ToListAsync();
+            ViewBag.IsGymOpen = GymTime.IsOpen(now);
 
             return View(bookings);
         }
 
 
-        // =========================================
-        // CHECK-IN
-        // =========================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CheckIn(long bookingId)
         {
-            await using var transaction = await _context.Database.BeginTransactionAsync();
-            var booking = await _context.Bookings
-                .FromSqlInterpolated($"SELECT * FROM dbo.Bookings WITH (UPDLOCK, HOLDLOCK) WHERE BookingId = {bookingId}")
-                .Include(b => b.Customer)
-                .FirstOrDefaultAsync(
-                    b => b.BookingId == bookingId
-                );
-
-            if (booking == null)
+            var error = await _expiration.CheckInAsync(bookingId, cancellationToken: HttpContext.RequestAborted);
+            if (error != null)
             {
-                return NotFound();
-            }
-
-
-            if (booking.Status != "CONFIRMED")
-            {
-                TempData["ErrorMessage"] =
-                    "Booking chưa được xác nhận.";
-
+                TempData["ErrorMessage"] = error;
                 return RedirectToAction(nameof(Create));
             }
 
-
-            var alreadyCheckedIn = await _context.CheckIns
-                .AnyAsync(c =>
-                    c.BookingId == booking.BookingId
-                );
-
-            if (alreadyCheckedIn)
-            {
-                TempData["ErrorMessage"] =
-                    "Booking này đã được check-in.";
-
-                return RedirectToAction(nameof(Create));
-            }
-
-
-            var checkIn = new CheckIn
-            {
-                CustomerId = booking.CustomerId,
-
-                BookingId = booking.BookingId,
-
-                CheckInTime = DateTime.Now,
-
-                CreatedAt = DateTime.Now
-            };
-
-
-            _context.CheckIns.Add(checkIn);
-
-            try
-            {
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-            }
-            catch (DbUpdateException)
-            {
-                await transaction.RollbackAsync();
-                TempData["ErrorMessage"] = "Không thể check-in. Booking có thể đã được check-in hoặc thay đổi trạng thái.";
-                return RedirectToAction(nameof(Create));
-            }
-
-
-            TempData["SuccessMessage"] =
-                $"Check-in thành công cho {booking.Customer.FullName}.";
-
+            TempData["SuccessMessage"] = "Đã check-in cho khách hàng.";
             return RedirectToAction(nameof(Index));
         }
     }

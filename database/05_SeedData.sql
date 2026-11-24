@@ -57,11 +57,13 @@ GO
 INSERT INTO dbo.PTs
 (FullName,Phone,Email,Specialization,Experience,Description,Status)
 VALUES
-(N'Nguyễn Đức Anh',N'0912000001',N'ducanh.pt@smartgym.vn',N'Tăng cơ - Strength',5,N'Chuyên hướng dẫn tăng cơ và tập luyện sức mạnh.',N'ACTIVE'),
-(N'Trần Minh Hoàng',N'0912000002',N'minhhoang.pt@smartgym.vn',N'Giảm cân - Cardio',4,N'Chuyên giảm cân, cardio và cải thiện thể lực.',N'ACTIVE'),
-(N'Lê Thu Hà',N'0912000003',N'thuha.pt@smartgym.vn',N'Yoga - Mobility',6,N'Chuyên Yoga, mobility và cải thiện độ linh hoạt.',N'ACTIVE'),
-(N'Phạm Quốc Huy',N'0912000004',N'quochuy.pt@smartgym.vn',N'Boxing - Conditioning',7,N'Chuyên Boxing và conditioning.',N'ACTIVE'),
-(N'Vũ Ngọc Mai',N'0912000005',N'ngocmai.pt@smartgym.vn',N'Fitness Beginner',3,N'Hướng dẫn người mới bắt đầu tập luyện.',N'ACTIVE');
+(N'Nguyễn Đức Anh',N'0912000001',N'ducanh.pt@smartgym.vn',N'Gym – Sức mạnh và tăng cơ',5,N'Hướng dẫn tăng cơ và tập luyện sức mạnh.',N'ACTIVE'),
+(N'Lê Thu Hà',N'0912000003',N'thuha.pt@smartgym.vn',N'Yoga – Linh hoạt',6,N'Hướng dẫn Yoga và cải thiện độ linh hoạt.',N'ACTIVE'),
+(N'Phạm Quốc Huy',N'0912000004',N'quochuy.pt@smartgym.vn',N'Kickbox – Thể lực',7,N'Hướng dẫn Kickbox và rèn luyện thể lực.',N'ACTIVE'),
+(N'Trần Bảo Ngọc',NULL,NULL,N'Pilates – Kiểm soát cơ thể',NULL,N'Hướng dẫn Pilates và kiểm soát chuyển động.',N'ACTIVE'),
+(N'Phạm Thanh Vân',NULL,NULL,N'Yoga – Linh hoạt',NULL,N'Hướng dẫn Yoga và cải thiện độ linh hoạt.',N'ACTIVE'),
+(N'Đỗ Ngọc Hân',NULL,NULL,N'Gym – Thể lực và giảm mỡ',NULL,N'Hướng dẫn tập gym và cải thiện thể lực.',N'ACTIVE'),
+(N'Đinh Phương Thảo',NULL,NULL,N'Pilates – Pilates thảm',NULL,N'Hướng dẫn Pilates trên thảm.',N'ACTIVE');
 GO
 
 INSERT INTO dbo.Packages
@@ -78,9 +80,8 @@ INSERT INTO dbo.Services
 VALUES
 (N'Gym',N'Tập luyện gym thông thường.',0,90,1),
 (N'Yoga',N'Yoga cải thiện linh hoạt và thăng bằng.',100000,60,1),
-(N'Boxing',N'Boxing và cải thiện thể lực.',150000,60,1),
-(N'Cardio',N'Cardio cải thiện sức bền.',0,60,1),
-(N'Stretching',N'Giãn cơ và mobility.',50000,45,1);
+(N'Kickbox',N'Tập Kickbox và cải thiện thể lực.',150000,60,1),
+(N'Pilates',N'Pilates cải thiện sức mạnh cơ trung tâm và kiểm soát chuyển động.',150000,60,1);
 GO
 
 INSERT INTO dbo.Exercises

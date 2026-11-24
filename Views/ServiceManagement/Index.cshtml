@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Quản lý dịch vụ";
+    var inactive = ViewBag.Inactive == true;
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -38,6 +39,10 @@
     </div>
 }
 
+
+<a asp-action="Index" asp-route-inactive="@((!inactive).ToString().ToLowerInvariant())" class="btn btn-outline-secondary mb-3">
+    @(inactive ? "Dịch vụ đang hoạt động" : "Dịch vụ ngừng hoạt động")
+</a>
 
 <div class="table-shell">
 

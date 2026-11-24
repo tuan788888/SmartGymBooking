@@ -23,9 +23,10 @@ namespace SmartGymBooking.Controllers
 
 
 
-        public async Task<IActionResult> Index(string? search)
+        public async Task<IActionResult> Index(string? search, bool inactive = false)
         {
-            var query = _context.Pts.AsNoTracking().AsQueryable();
+            var status = inactive ? "INACTIVE" : "ACTIVE";
+            var query = _context.Pts.AsNoTracking().Where(p => p.Status == status);
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -41,11 +42,11 @@ namespace SmartGymBooking.Controllers
             }
 
             var pts = await query
-                .OrderByDescending(p => p.Status == "ACTIVE")
-                .ThenBy(p => p.FullName)
+                .OrderBy(p => p.FullName)
                 .ToListAsync();
 
             ViewBag.Search = search;
+            ViewBag.Inactive = inactive;
 
             return View(pts);
         }

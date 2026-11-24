@@ -18,12 +18,14 @@ namespace SmartGymBooking.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(bool inactive = false)
         {
             var services = await _context.Services
+                .Where(s => s.IsActive != inactive)
                 .OrderBy(s => s.ServiceId)
                 .ToListAsync();
 
+            ViewBag.Inactive = inactive;
             return View(services);
         }
 

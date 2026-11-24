@@ -118,6 +118,10 @@
                     </button>
                     <div class="dropdown-menu dropdown-menu-end account-menu">
                         <div class="account-menu-info"><strong>@role</strong><span>@email</span></div>
+                        @if (User.IsInRole("CUSTOMER"))
+                        {
+                            <a asp-controller="Auth" asp-action="Profile" class="dropdown-item"><partial name="_Icon" model='@("user")' /> Hồ sơ của tôi</a>
+                        }
                         <form asp-controller="Auth" asp-action="Logout" method="post"><button type="submit" class="dropdown-item"><partial name="_Icon" model='@("logout")' /> Đăng xuất</button></form>
                     </div>
                 </div>

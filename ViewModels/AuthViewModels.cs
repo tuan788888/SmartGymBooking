@@ -18,14 +18,15 @@ public class LoginViewModel
 
 public class RegisterViewModel
 {
+    internal const string GmailPattern = @"(?=[a-zA-Z0-9.]{6,30}@)[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@[Gg][Mm][Aa][Ii][Ll]\.[Cc][Oo][Mm]";
+    internal const string GmailError = "Nhập địa chỉ @gmail.com có tên hộp thư từ 6 đến 30 ký tự, chỉ gồm chữ cái, chữ số và dấu chấm hợp lệ.";
+
     [Required(ErrorMessage = "Vui lòng nhập họ tên.")]
     [StringLength(150)]
     public string FullName { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Vui lòng nhập email.")]
-    [EmailAddress(ErrorMessage = "Email không hợp lệ.")]
-    [StringLength(255, ErrorMessage = "Email không được dài quá 255 ký tự.")]
-    [RegularExpression(@"[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@[Gg][Mm][Aa][Ii][Ll]\.[Cc][Oo][Mm]", ErrorMessage = "Vui lòng nhập địa chỉ có đuôi @gmail.com hợp lệ.")]
+    [RegularExpression(GmailPattern, ErrorMessage = GmailError)]
     public string Email { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Vui lòng nhập mật khẩu.")]

@@ -141,6 +141,14 @@ namespace SmartGymBooking.Controllers
             }
 
             var email = canManageCredentials ? model.Email!.Trim().ToLowerInvariant() : customer.User.Email;
+            if (canManageCredentials &&
+                !string.Equals(email, customer.User.Email, StringComparison.OrdinalIgnoreCase) &&
+                !new System.ComponentModel.DataAnnotations.RegularExpressionAttribute(RegisterViewModel.GmailPattern).IsValid(email))
+            {
+                ModelState.AddModelError(nameof(model.Email), RegisterViewModel.GmailError);
+                return View(model);
+            }
+
             if (canManageCredentials && await _context.Users.AnyAsync(u =>
                 u.UserId != customer.UserId && u.Email.ToLower() == email))
             {

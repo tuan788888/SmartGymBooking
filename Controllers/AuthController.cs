@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SmartGymBooking.Data;
 using SmartGymBooking.Models;
+using SmartGymBooking.Services;
 using SmartGymBooking.ViewModels;
 
 namespace SmartGymBooking.Controllers
@@ -209,6 +210,41 @@ namespace SmartGymBooking.Controllers
             return managed
                 ? RedirectToAction(nameof(CustomerManagementController.Index), "CustomerManagement")
                 : RedirectToAction(nameof(Login));
+        }
+
+        [Authorize(Roles = "CUSTOMER")]
+        [HttpGet]
+        public async Task<IActionResult> Profile()
+        {
+            var customer = await GetProfileCustomerAsync();
+            if (customer == null) return NotFound();
+
+            return View(new CustomerProfileViewModel { FullName = customer.FullName });
+        }
+
+        [Authorize(Roles = "CUSTOMER")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Profile(CustomerProfileViewModel model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            var customer = await GetProfileCustomerAsync();
+            if (customer == null) return NotFound();
+
+            customer.FullName = model.FullName.Trim();
+            customer.UpdatedAt = GymTime.Now;
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Đã lưu tên của bạn.";
+            return RedirectToAction(nameof(Profile));
+        }
+
+        private Task<Customer?> GetProfileCustomerAsync()
+        {
+            return long.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId)
+                ? _context.Customers.SingleOrDefaultAsync(c => c.UserId == userId)
+                : Task.FromResult<Customer?>(null);
         }
 
         [HttpPost]

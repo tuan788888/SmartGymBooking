@@ -1,0 +1,26 @@
+@model SmartGymBooking.ViewModels.CustomerProfileViewModel
+
+@{
+    ViewData["Title"] = "Hồ sơ của tôi";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        @if (TempData["SuccessMessage"] is string message)
+        {
+            <div class="alert alert-success" role="status">@message</div>
+        }
+        <form asp-action="Profile" method="post" class="smart-card p-4">
+            <label asp-for="FullName" class="form-label">Họ và tên</label>
+            <input asp-for="FullName" class="form-control" autocomplete="name" maxlength="150"
+                   aria-describedby="nameHelp" />
+            <span asp-validation-for="FullName" class="text-danger"></span>
+            <p id="nameHelp" class="form-text">Tên này giúp nhân viên nhận ra bạn khi xem lịch đặt và check-in.</p>
+            <button type="submit" class="btn btn-smart-success mt-2">Lưu tên</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

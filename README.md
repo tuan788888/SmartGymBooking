@@ -12,7 +12,7 @@ SmartGymBooking tập trung các nghiệp vụ này vào một hệ thống web 
 
 | Vai trò | Chức năng |
 | --- | --- |
-| Khách hàng | Đăng ký tài khoản, xem và mua gói tập, chuyển khoản qua mã QR, xem lịch sử giao dịch và gói đang sử dụng, đặt hoặc hủy lịch, xem lịch PT và sử dụng tính năng hỗ trợ tập luyện. |
+| Khách hàng | Đăng ký bằng địa chỉ Gmail hợp lệ, cập nhật họ tên trong **Hồ sơ của tôi**, mua gói tập, chuyển khoản qua mã QR, đặt hoặc hủy lịch, xem trạng thái check-in, lịch PT và sử dụng tính năng hỗ trợ tập luyện. |
 | Nhân viên | Kiểm tra và xác nhận giao dịch chuyển khoản, xử lý lịch đặt và ghi nhận check-in. |
 | Quản trị viên | Quản lý khách hàng, nhân viên, PT, lịch PT, dịch vụ, gói tập và thư viện bài tập. Theo dõi doanh thu và tình trạng đặt lịch trên dashboard. |
 
@@ -20,7 +20,8 @@ SmartGymBooking tập trung các nghiệp vụ này vào một hệ thống web 
 
 1. **Mua gói tập.** Khách hàng chọn gói thường hoặc gói có PT. Hệ thống tạo giao dịch và hiển thị mã QR để chuyển khoản.
 2. **Kích hoạt gói.** Nhân viên đối chiếu giao dịch và xác nhận thanh toán. Hệ thống ghi nhận giao dịch đã thanh toán và kích hoạt gói cho khách hàng.
-3. **Đặt lịch và check-in.** Khách hàng có gói hợp lệ chọn dịch vụ và khung giờ. Hệ thống kiểm tra lịch trùng. Nhân viên xử lý lịch đặt và check-in khi khách đến. Lịch quá giờ chưa có check-in được hệ thống tự động hủy.
+3. **Đặt lịch và check-in.** Khách hàng có gói hợp lệ chọn dịch vụ và ngày tập. Hệ thống kiểm tra lịch trùng và xác định khung check-in theo giờ mở cửa (06:00–22:00, giờ Việt Nam) và thời hạn gói. Admin hoặc nhân viên ghi nhận check-in tại quầy theo lịch đặt hoặc cho khách đủ điều kiện đến trực tiếp. Lịch hết khung check-in được hệ thống tự động hủy nếu khách chưa đến.
+4. **Phân PT.** Nhân viên chọn giờ PT trong khung của lịch đã đặt. Hệ thống kiểm tra quyền lợi gói tập và lịch trùng của khách và PT.
 
 ## Hỗ trợ tập luyện
 
@@ -45,6 +46,8 @@ Chatbot hỗ trợ giải đáp câu hỏi về tập luyện. Ứng dụng có 
 4. Trình diễn bằng cách đăng nhập lần lượt với ba vai trò, xem gói PT của khách hàng và mở lịch sử giao dịch, màn hình xử lý lịch đặt và dashboard quản trị.
 
 Script `database/06_DemoAccounts.sql` tạo dữ liệu trình diễn trên cơ sở dữ liệu đã có lược đồ và gói PT đang bán. Để chạy bản web với chatbot và giáo án tắt, dùng `dotnet run -p:EnableAiFeatures=false`.
+
+Dữ liệu mẫu trong `database/05_SeedData.sql` có 7 PT và 4 dịch vụ gồm Gym, Kickbox, Yoga và Pilates. Với cơ sở dữ liệu đang sử dụng, quản trị viên có thể cập nhật danh mục trong trang quản lý PT và dịch vụ.
 
 Chạy script `database/07_BookingPT.sql` trên cơ sở dữ liệu đang dùng trước khi triển khai bản có tính năng phân PT từ lịch đặt.
 

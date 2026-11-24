@@ -25,7 +25,7 @@
                 </div>
 
 
-                <p class="text-muted">Đặt lịch trong giờ mở cửa 06:00–22:00 (giờ Việt Nam, UTC+7). Lịch hợp lệ được xác nhận ngay.</p>
+                <p class="text-muted">Khi đến tập, vui lòng check-in tại quầy lễ tân trong giờ mở cửa 06:00–22:00 (giờ Việt Nam) và khi gói tập còn hiệu lực.</p>
 
                 <form asp-action="Create"
                       method="post">
@@ -61,38 +61,20 @@
 
                     <div class="mb-3">
 
-                        <label asp-for="StartTime"
+                        <label asp-for="BookingDate"
                                class="form-label">
 
-                            Thời gian bắt đầu
+                            Ngày tập
 
                         </label>
 
-                        <input asp-for="StartTime"
-                               type="datetime-local"
+                        <input asp-for="BookingDate"
+                               type="date"
+                               asp-format="{0:yyyy-MM-dd}"
+                               min="@SmartGymBooking.Services.GymTime.Now.ToString("yyyy-MM-dd")"
                                class="form-control" />
 
-                        <span asp-validation-for="StartTime"
-                              class="text-danger">
-                        </span>
-
-                    </div>
-
-
-                    <div class="mb-4">
-
-                        <label asp-for="EndTime"
-                               class="form-label">
-
-                            Thời gian kết thúc
-
-                        </label>
-
-                        <input asp-for="EndTime"
-                               type="datetime-local"
-                               class="form-control" />
-
-                        <span asp-validation-for="EndTime"
+                        <span asp-validation-for="BookingDate"
                               class="text-danger">
                         </span>
 

@@ -3,7 +3,6 @@
 @{
     ViewData["Title"] = "Lịch của tôi";
     var now = SmartGymBooking.Services.GymTime.Now;
-    var isOpen = SmartGymBooking.Services.GymTime.IsOpen(now);
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -15,7 +14,7 @@
         </h2>
 
         <p class="page-subtitle">
-            Theo dõi lịch đã đặt và tự check-in trong giờ tập. Phòng mở cửa 06:00–22:00 (giờ Việt Nam).
+            Theo dõi lịch đã đặt và trạng thái check-in. Khi đến tập, vui lòng liên hệ quầy lễ tân.
         </p>
 
     </div>
@@ -142,13 +141,6 @@
                             @if (booking.CheckIn != null)
                             {
                                 <span class="badge bg-success">Đã check-in @booking.CheckIn.CheckInTime.ToString("HH:mm")</span>
-                            }
-                            else if (isOpen && booking.Status == "CONFIRMED" && booking.StartTime <= now && booking.EndTime > now)
-                            {
-                                <form asp-action="CheckIn" method="post">
-                                    <input type="hidden" name="bookingId" value="@booking.BookingId" />
-                                    <button type="submit" class="btn btn-sm btn-success">Tự check-in</button>
-                                </form>
                             }
                             else if (
                                 (booking.Status == "PENDING" ||

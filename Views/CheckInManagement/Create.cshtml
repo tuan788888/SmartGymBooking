@@ -1,141 +1,99 @@
-@model IEnumerable<SmartGymBooking.Models.Booking>
+﻿@model IEnumerable<SmartGymBooking.Models.Booking>
 
 @{
     ViewData["Title"] = "Check-in khách hàng";
+    var isGymOpen = ViewBag.IsGymOpen == true;
+    var walkInCustomers = ViewBag.WalkInCustomers as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>;
 }
 
-<div class="mb-4">
-
-    <h2 class="page-title">
-        Check-in khách hàng
-    </h2>
-
-    <p class="page-subtitle">
-        Chọn lịch đang diễn ra để check-in. Hệ thống tự ghi giờ hiện tại. Phòng mở cửa 06:00–22:00 (giờ Việt Nam).
-    </p>
-
+<div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-4">
+    <div>
+        <h2 class="page-title">Check-in khách hàng</h2>
+        <p class="page-subtitle mb-0">Phòng tập mở cửa 06:00–22:00 (giờ Việt Nam).</p>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary">Lịch sử check-in</a>
 </div>
 
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+    <div class="alert alert-success" role="status">@successMessage</div>
+}
 
-@if (ViewBag.IsGymOpen == false)
+@if (TempData["ErrorMessage"] is string errorMessage)
+{
+    <div class="alert alert-danger" role="alert">@errorMessage</div>
+}
+
+@if (!isGymOpen)
 {
     <div class="alert alert-info">Phòng tập đang đóng cửa.</div>
 }
-
-@if (TempData["ErrorMessage"] != null)
+else
 {
-    <div class="alert alert-danger">
-        @TempData["ErrorMessage"]
+    <div class="row g-3">
+        <div class="col-lg-6">
+            <section class="smart-card p-3 h-100">
+                <h3 class="h5">Theo lịch đặt</h3>
+                @if (Model.Any())
+                {
+                    <form asp-action="CheckIn" method="post" data-check-in-form>
+                        <label for="bookingId" class="form-label">Lịch đang diễn ra</label>
+                        <select id="bookingId" name="bookingId" class="form-select mb-3" required>
+                            <option value="">Chọn lịch đặt</option>
+                            @foreach (var booking in Model)
+                            {
+                                <option value="@booking.BookingId">
+                                    @booking.Customer.FullName · @booking.Service.Name · @booking.StartTime.ToString("HH:mm")–@booking.EndTime.ToString("HH:mm") · #@booking.BookingId
+                                </option>
+                            }
+                        </select>
+                        <button type="submit" class="btn btn-smart-success">Check-in theo lịch</button>
+                    </form>
+                }
+                else
+                {
+                    <p class="text-muted mb-0">Không có lịch đang diễn ra cần check-in.</p>
+                }
+            </section>
+        </div>
+
+        <div class="col-lg-6">
+            <section class="smart-card p-3 h-100">
+                <h3 class="h5">Khách đến trực tiếp</h3>
+                @if (walkInCustomers is { Count: > 0 })
+                {
+                    <form asp-action="WalkIn" method="post" data-check-in-form>
+                        <label for="walkInCustomer" class="form-label">Khách có gói tập đang hoạt động</label>
+                        <select id="walkInCustomer" name="customerId" asp-items="walkInCustomers" class="form-select mb-3" required>
+                            <option value="">Chọn khách hàng</option>
+                        </select>
+                        <button type="submit" class="btn btn-smart-success">Check-in trực tiếp</button>
+                    </form>
+                }
+                else
+                {
+                    <p class="text-muted mb-0">Không có khách đủ điều kiện check-in trực tiếp.</p>
+                }
+            </section>
+        </div>
     </div>
 }
-
-
-<div class="table-shell">
-
-    <div class="table-responsive">
-
-        <table class="table align-middle">
-
-            <thead>
-
-                <tr>
-                    <th>Khách hàng</th>
-                    <th>Dịch vụ</th>
-                    <th>Bắt đầu</th>
-                    <th>Kết thúc</th>
-                    <th>Trạng thái</th>
-                    <th></th>
-                </tr>
-
-            </thead>
-
-            <tbody>
-                @if (!Model.Any())
-                {
-                    <tr><td colspan="6" class="text-center text-muted py-4">Không có lịch check-in.</td></tr>
-                }
-
-                @foreach (var booking in Model)
-                {
-                    <tr data-booking-id="@booking.BookingId" data-booking-status="@booking.Status">
-
-                        <td>
-                            @booking.Customer.FullName
-                        </td>
-
-                        <td>
-                            @booking.Service.Name
-                        </td>
-
-                        <td>
-                            @booking.StartTime.ToString(
-                                "dd/MM/yyyy HH:mm"
-                            )
-                        </td>
-
-                        <td>
-                            @booking.EndTime.ToString(
-                                "dd/MM/yyyy HH:mm"
-                            )
-                        </td>
-
-                        <td>
-                            @if (booking.Status == "CANCELLED")
-                            {
-                                <span class="badge bg-secondary">Đã hủy check-in</span>
-                                <div class="small text-muted mt-1">Đã quá giờ kết thúc</div>
-                            }
-                            else
-                            {
-                                <span class="badge bg-success">Đã xác nhận</span>
-                            }
-                        </td>
-
-                        <td>
-                            @if (ViewBag.IsGymOpen == true)
-                            {
-                                <form asp-action="CheckIn"
-                                      asp-route-bookingId="@booking.BookingId"
-                                      method="post">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-sm btn-success">Check-in</button>
-                                </form>
-                            }
-
-                        </td>
-
-                    </tr>
-                }
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-</div>
 
 @section Scripts {
     <script>
+        const checkInForms = document.querySelectorAll('[data-check-in-form]');
+
+        checkInForms.forEach(form => {
+            form.addEventListener('submit', () => form.dataset.submitting = 'true');
+        });
+
         window.setInterval(() => {
-            if (document.visibilityState === 'visible' && !document.querySelector('form[data-submitting]')) {
+            const isInUse = Array.from(checkInForms).some(form =>
+                form.dataset.submitting || form.contains(document.activeElement) || form.querySelector('select').value);
+
+            if (document.visibilityState === 'visible' && !isInUse) {
                 window.location.reload();
             }
         }, 30000);
-        document.querySelectorAll('form[method="post"]').forEach(form => {
-            form.addEventListener('submit', () => form.dataset.submitting = 'true');
-        });
     </script>
 }
-
-
-<div class="mt-3">
-
-    <a asp-action="Index"
-       class="btn btn-outline-secondary">
-
-        Quay lại
-
-    </a>
-
-</div>

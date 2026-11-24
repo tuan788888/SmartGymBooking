@@ -34,14 +34,6 @@ namespace SmartGymBooking.Controllers
                 .OrderByDescending(c => c.CheckInTime)
                 .ToListAsync();
 
-            var now = GymTime.FromUtc(_timeProvider.GetUtcNow());
-            ViewBag.WalkInCustomers = await _context.Customers.AsNoTracking()
-                .Where(c => c.User.IsActive && c.Memberships.Any(m =>
-                    m.Status == "ACTIVE" && m.StartDate <= now && m.EndDate > now))
-                .OrderBy(c => c.FullName)
-                .Select(c => new SelectListItem(c.FullName + " – " + c.User.Email, c.CustomerId.ToString()))
-                .ToListAsync();
-
             return View(checkIns);
         }
 
@@ -58,7 +50,7 @@ namespace SmartGymBooking.Controllers
             if (!GymTime.IsOpen(now))
             {
                 TempData["ErrorMessage"] = GymTime.HoursMessage;
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Create));
             }
 
             var customer = await _context.Customers.AsNoTracking().Where(c => c.CustomerId == customerId && c.User.IsActive)
@@ -87,7 +79,7 @@ namespace SmartGymBooking.Controllers
                 TempData["SuccessMessage"] = $"Đã check-in trực tiếp cho {customer.FullName}.";
             }
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Create));
         }
 
         [HttpGet]
@@ -103,6 +95,21 @@ namespace SmartGymBooking.Controllers
                 .OrderBy(b => b.StartTime)
                 .ToListAsync();
             ViewBag.IsGymOpen = GymTime.IsOpen(now);
+            if (ViewBag.IsGymOpen == true)
+            {
+                var today = now.Date;
+                var tomorrow = today.AddDays(1);
+                ViewBag.WalkInCustomers = await _context.Customers.AsNoTracking()
+                    .Where(c => c.User.IsActive && c.Memberships.Any(m =>
+                        m.Status == "ACTIVE" && m.StartDate <= now && m.EndDate > now))
+                    .Where(c => !_context.Bookings.Any(b => b.CustomerId == c.CustomerId &&
+                        b.Status == "CONFIRMED" && b.StartTime <= now && b.EndTime > now))
+                    .Where(c => !_context.CheckIns.Any(checkIn => checkIn.CustomerId == c.CustomerId &&
+                        checkIn.BookingId == null && checkIn.CheckInTime >= today && checkIn.CheckInTime < tomorrow))
+                    .OrderBy(c => c.FullName)
+                    .Select(c => new SelectListItem(c.FullName + " – " + c.User.Email, c.CustomerId.ToString()))
+                    .ToListAsync();
+            }
 
             return View(bookings);
         }
@@ -121,7 +128,7 @@ namespace SmartGymBooking.Controllers
             }
 
             TempData["SuccessMessage"] = "Đã check-in cho khách hàng.";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Create));
         }
     }
 }

@@ -122,7 +122,9 @@ namespace SmartGymBooking.Controllers
                 model.BookingId = id;
                 model.CustomerId = booking.CustomerId;
                 model.StartTime = booking.StartTime;
-                model.EndTime = booking.EndTime;
+                model.EndTime = booking.EndTime - booking.StartTime > TimeSpan.FromHours(1)
+                    ? booking.StartTime.AddHours(1)
+                    : booking.EndTime;
                 ViewBag.BookingCustomer = booking.Customer.FullName;
             }
 
@@ -138,17 +140,14 @@ namespace SmartGymBooking.Controllers
         public async Task<IActionResult> Create(
             PTScheduleViewModel model)
         {
+            Booking? linkedBooking = null;
             if (model.BookingId is long bookingId)
             {
-                var booking = await FindBookingAsync(bookingId);
-                if (booking == null) return NotFound();
-                model.CustomerId = booking.CustomerId;
-                model.StartTime = booking.StartTime;
-                model.EndTime = booking.EndTime;
-                ViewBag.BookingCustomer = booking.Customer.FullName;
+                linkedBooking = await FindBookingAsync(bookingId);
+                if (linkedBooking == null) return NotFound();
+                model.CustomerId = linkedBooking.CustomerId;
+                ViewBag.BookingCustomer = linkedBooking.Customer.FullName;
                 ModelState.Remove(nameof(model.CustomerId));
-                ModelState.Remove(nameof(model.StartTime));
-                ModelState.Remove(nameof(model.EndTime));
             }
 
             if (!ModelState.IsValid)
@@ -237,6 +236,11 @@ namespace SmartGymBooking.Controllers
             if (model.EndTime > model.StartTime && !GymTime.IsWithinHours(model.StartTime, model.EndTime))
                 ModelState.AddModelError(nameof(model.EndTime),
                     "Lịch PT phải nằm trong cùng một ngày từ 06:00 đến 22:00.");
+
+            if (linkedBooking != null &&
+                (model.StartTime < linkedBooking.StartTime || model.EndTime > linkedBooking.EndTime))
+                ModelState.AddModelError(string.Empty,
+                    $"Chọn giờ PT trong khung lịch tập {linkedBooking.StartTime:dd/MM/yyyy HH:mm}–{linkedBooking.EndTime:HH:mm}.");
 
             if (!model.BookingId.HasValue && (model.StartTime > maxDate ||
                 model.EndTime > maxDate))

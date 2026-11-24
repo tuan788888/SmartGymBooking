@@ -24,13 +24,12 @@ public static class GymTime
 
 public sealed class BookingExpirationService(ApplicationDbContext context, TimeProvider timeProvider)
 {
-    public async Task<string?> CheckInAsync(long bookingId, long? customerId = null,
-        CancellationToken cancellationToken = default)
+    public async Task<string?> CheckInAsync(long bookingId, CancellationToken cancellationToken = default)
     {
         await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
         var booking = await context.Bookings
             .FromSqlInterpolated($"SELECT * FROM dbo.Bookings WITH (UPDLOCK, HOLDLOCK) WHERE BookingId = {bookingId}")
-            .SingleOrDefaultAsync(b => b.BookingId == bookingId && (!customerId.HasValue || b.CustomerId == customerId), cancellationToken);
+            .SingleOrDefaultAsync(b => b.BookingId == bookingId, cancellationToken);
         if (booking == null) return "Không tìm thấy lịch tập.";
 
         var now = GymTime.FromUtc(timeProvider.GetUtcNow());

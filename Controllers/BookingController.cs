@@ -96,16 +96,10 @@ namespace SmartGymBooking.Controllers
         public async Task<IActionResult> Create()
         {
             var now = GymTime.Now;
-            var start = now.AddHours(1);
-            if (start.TimeOfDay < GymTime.OpeningTime)
-                start = start.Date + GymTime.OpeningTime;
-            else if (start.TimeOfDay.Add(TimeSpan.FromHours(1)) > GymTime.ClosingTime)
-                start = start.Date.AddDays(1) + GymTime.OpeningTime;
-
             var model = new BookingCreateViewModel
             {
-                StartTime = start,
-                EndTime = start.AddHours(1)
+                BookingDate = DateOnly.FromDateTime(now.TimeOfDay < GymTime.ClosingTime
+                    ? now : now.AddDays(1))
             };
 
             await LoadServicesAsync(model);
@@ -138,42 +132,46 @@ namespace SmartGymBooking.Controllers
             await using var transaction = await _context.Database.BeginTransactionAsync();
             await PackagePurchase.LockCustomerAsync(_context, customer.CustomerId);
 
-            var start = model.StartTime!.Value;
-            var end = model.EndTime!.Value;
+            var date = model.BookingDate!.Value.ToDateTime(TimeOnly.MinValue);
+            var opens = date + GymTime.OpeningTime;
+            var closes = date + GymTime.ClosingTime;
+            var start = opens;
+            var end = closes;
             var now = GymTime.Now;
             if (!await _context.Services.AnyAsync(s => s.ServiceId == model.ServiceId && s.IsActive))
                 ModelState.AddModelError(nameof(model.ServiceId), "Dịch vụ không tồn tại hoặc đã ngừng hoạt động.");
 
-            if (start <= now)
-                ModelState.AddModelError(nameof(model.StartTime), "Thời gian bắt đầu phải sau thời điểm hiện tại.");
-
-            if (end <= start)
-                ModelState.AddModelError(nameof(model.EndTime), "Thời gian kết thúc phải sau thời gian bắt đầu.");
-
-            if (end > start && !GymTime.IsWithinHours(start, end))
-                ModelState.AddModelError(nameof(model.EndTime), "Chọn khung giờ trong cùng một ngày từ 06:00 đến 22:00.");
+            if (closes <= now)
+                ModelState.AddModelError(nameof(model.BookingDate), "Vui lòng chọn ngày tập chưa qua giờ đóng cửa.");
 
             if (ModelState.IsValid)
             {
                 var memberships = await _context.Memberships
                     .Where(m => m.CustomerId == customer.CustomerId && m.Status == "ACTIVE" && m.EndDate > now)
                     .Select(m => new { m.StartDate, m.EndDate })
-                    .OrderBy(m => m.StartDate)
                     .ToListAsync();
 
                 if (memberships.Count == 0)
                 {
                     ModelState.AddModelError(string.Empty, "Bạn chưa có gói tập còn hiệu lực. Vui lòng mua hoặc gia hạn gói trước khi đặt lịch.");
                 }
-                else if (!memberships.Any(m => m.StartDate <= start && m.EndDate >= end))
+                else
                 {
-                    var periods = string.Join("; ", memberships.Select(m => $"{m.StartDate:dd/MM/yyyy HH:mm} đến {m.EndDate:dd/MM/yyyy HH:mm}"));
-                    ModelState.AddModelError(string.Empty, $"Khung giờ đã chọn nằm ngoài thời hạn gói tập. Thời hạn gói của bạn: {periods}.");
-                }
-                else if (await _context.Bookings.AnyAsync(b => b.CustomerId == customer.CustomerId &&
-                    b.Status != "CANCELLED" && start < b.EndTime && end > b.StartTime))
-                {
-                    ModelState.AddModelError(string.Empty, "Bạn đã có lịch tập trùng với khung giờ đã chọn.");
+                    var window = memberships
+                        .Select(m => (Start: m.StartDate > opens ? m.StartDate : opens,
+                            End: m.EndDate < closes ? m.EndDate : closes))
+                        .Where(w => w.End > w.Start && w.End > now)
+                        .OrderByDescending(w => w.End - (w.Start > now ? w.Start : now))
+                        .ThenBy(w => w.Start)
+                        .FirstOrDefault();
+
+                    if (window == default)
+                        ModelState.AddModelError(nameof(model.BookingDate), "Gói tập của bạn không còn hiệu lực trong giờ mở cửa của ngày đã chọn.");
+                    else if (await _context.Bookings.AnyAsync(b => b.CustomerId == customer.CustomerId &&
+                        b.Status != "CANCELLED" && opens < b.EndTime && closes > b.StartTime))
+                        ModelState.AddModelError(nameof(model.BookingDate), "Bạn đã có lịch tập trong ngày đã chọn.");
+                    else
+                        (start, end) = window;
                 }
             }
 
@@ -218,18 +216,6 @@ namespace SmartGymBooking.Controllers
         }
 
 
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CheckIn(long bookingId)
-        {
-            var customer = await GetCurrentCustomerAsync();
-            if (customer == null) return Unauthorized();
-
-            var error = await _expiration.CheckInAsync(bookingId, customer.CustomerId, HttpContext.RequestAborted);
-            TempData[error == null ? "SuccessMessage" : "ErrorMessage"] = error ?? "Bạn đã check-in thành công.";
-            return RedirectToAction(nameof(Index));
-        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]

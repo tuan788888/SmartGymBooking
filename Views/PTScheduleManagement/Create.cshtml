@@ -24,7 +24,7 @@
                 <div class="alert alert-info">
 
                     @(Model.BookingId.HasValue
-                        ? "Giờ PT được lấy từ lịch khách đã đặt."
+                        ? "Chọn giờ PT trong khung lịch khách đã đặt."
                         : "Lịch PT riêng chỉ được tạo tối đa 14 ngày tới, trong giờ 06:00–22:00 (giờ Việt Nam).")
 
                 </div>
@@ -115,7 +115,7 @@
                             </label>
 
                             <input asp-for="StartTime"
-                                   type="datetime-local" readonly="@Model.BookingId.HasValue"
+                                   type="datetime-local"
                                    class="form-control" />
 
                             <span asp-validation-for="StartTime"
@@ -135,7 +135,7 @@
                             </label>
 
                             <input asp-for="EndTime"
-                                   type="datetime-local" readonly="@Model.BookingId.HasValue"
+                                   type="datetime-local"
                                    class="form-control" />
 
                             <span asp-validation-for="EndTime"

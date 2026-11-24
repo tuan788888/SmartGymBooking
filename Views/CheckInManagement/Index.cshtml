@@ -1,7 +1,7 @@
 @model IEnumerable<SmartGymBooking.Models.CheckIn>
 
 @{
-    ViewData["Title"] = "Check-in";
+    ViewData["Title"] = "Lịch sử check-in";
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -9,7 +9,7 @@
     <div>
 
         <h2 class="page-title">
-            Check-in
+            Lịch sử check-in
         </h2>
 
         <p class="page-subtitle">
@@ -21,38 +21,12 @@
     <a asp-action="Create"
        class="btn btn-smart-success">
 
-        + Check-in khách hàng
+        Check-in khách hàng
 
     </a>
 
 </div>
 
-
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success">
-        @TempData["SuccessMessage"]
-    </div>
-}
-
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger">
-        @TempData["ErrorMessage"]
-    </div>
-}
-
-
-<form asp-action="WalkIn" method="post" class="smart-card p-3 mb-4">
-    <label for="walkInCustomer" class="form-label fw-semibold">Check-in trực tiếp cho khách chưa đặt lịch</label>
-    <p class="text-muted mb-2">Hệ thống ghi giờ hiện tại. Phòng mở cửa 06:00–22:00 (giờ Việt Nam).</p>
-    <div class="d-flex gap-2 flex-wrap">
-        <select id="walkInCustomer" name="customerId" asp-items="ViewBag.WalkInCustomers" class="form-select w-auto mw-100" required>
-            <option value="">Chọn khách có gói đang hoạt động</option>
-        </select>
-        <button type="submit" class="btn btn-smart-success">Check-in trực tiếp</button>
-    </div>
-</form>
 
 <div class="table-shell">
 

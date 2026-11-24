@@ -37,18 +37,3 @@ Chatbot hỗ trợ giải đáp câu hỏi về tập luyện. Ứng dụng có 
 | Ứng dụng | ASP.NET Core MVC trên .NET 10 xử lý yêu cầu, xác thực và phân quyền. |
 | Dữ liệu | Entity Framework Core và SQL Server lưu tài khoản, gói tập, giao dịch, lịch đặt và giáo án. |
 | Đề xuất giáo án | Python huấn luyện mô hình và ONNX Runtime chạy dự đoán trong ứng dụng. |
-
-## Chạy và trình diễn
-
-1. Cài .NET 10 SDK và chuẩn bị cơ sở dữ liệu SQL Server có đầy đủ lược đồ SmartGymBooking.
-2. Cấu hình `ConnectionStrings:DefaultConnection` theo máy chủ và cơ sở dữ liệu đang sử dụng.
-3. Chạy `dotnet run` ở thư mục gốc và mở địa chỉ hiển thị trong terminal.
-4. Trình diễn bằng cách đăng nhập lần lượt với ba vai trò, xem gói PT của khách hàng và mở lịch sử giao dịch, màn hình xử lý lịch đặt và dashboard quản trị.
-
-Script `database/06_DemoAccounts.sql` tạo dữ liệu trình diễn trên cơ sở dữ liệu đã có lược đồ và gói PT đang bán. Để chạy bản web với chatbot và giáo án tắt, dùng `dotnet run -p:EnableAiFeatures=false`.
-
-Dữ liệu mẫu trong `database/05_SeedData.sql` có 7 PT và 4 dịch vụ gồm Gym, Kickbox, Yoga và Pilates. Với cơ sở dữ liệu đang sử dụng, quản trị viên có thể cập nhật danh mục trong trang quản lý PT và dịch vụ.
-
-Chạy script `database/07_BookingPT.sql` trên cơ sở dữ liệu đang dùng trước khi triển khai bản có tính năng phân PT từ lịch đặt.
-
-Chạy thêm `database/08_PaymentReconciliation.sql` trước khi triển khai bản có tính năng đối soát giao dịch quá hạn.

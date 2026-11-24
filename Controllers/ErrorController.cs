@@ -18,6 +18,7 @@ public class ErrorController : Controller
     }
 
     [Route("/Error/ServerError")]
+    [Route("/Home/Error")]
     public IActionResult ServerError()
     {
         Response.StatusCode = 500;
